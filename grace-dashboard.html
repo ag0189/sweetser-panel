@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grace's Patient Panel Analytics</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        :root {
+            --primary-dark: #1a1a1a;
+            --primary-light: #f5f5f5;
+            --surface-light: #ffffff;
+            --surface-dark: #2d2d2d;
+            --text-light: #333333;
+            --text-dark: #ffffff;
+            --border-light: #e0e0e0;
+            --border-dark: #404040;
+            --accent-blue: #2563eb;
+            --accent-green: #16a34a;
+            --accent-orange: #ea580c;
+            --accent-purple: #7c3aed;
+            --accent-red: #dc2626;
+        }
+
+        [data-theme="dark"] {
+            color-scheme: dark;
+        }
+
+        [data-theme="light"] {
+            color-scheme: light;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background-color: var(--primary-light);
+            color: var(--text-light);
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: var(--primary-dark);
+                color: var(--text-dark);
+            }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        /* Collapsible section styles */
+        .collapsible-section {
+            background-color: var(--surface-light);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .collapsible-section {
+                background-color: var(--surface-dark);
+                border-color: var(--border-dark);
+                box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .section-header:hover {
+            background-color: var(--border-light);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .section-header:hover {
+                background-color: var(--border-dark);
+            }
+        }
+
+        .section-header h2 {
+            font-size: 1.25rem;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .toggle-icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            transition: transform 0.3s ease;
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        .toggle-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .section-content {
+            padding: 1.5rem;
+            max-height: 10000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+
+        .section-content.collapsed {
+            max-height: 0;
+            padding: 0 1.5rem;
+        }
+
+        .methodology-box-content {
+            font-size: 0.95rem;
+            border-left: 4px solid var(--accent-blue);
+            padding-left: 1.5rem;
+        }
+
+        .methodology-box-content ul {
+            margin-left: 1.5rem;
+            line-height: 1.8;
+            margin-top: 1rem;
+        }
+
+        .methodology-box-content p {
+            margin-top: 1rem;
+        }
+
+        .filters-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .filter-group-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-group-wrapper label {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border-light);
+            background-color: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .filter-btn {
+                border-color: var(--border-dark);
+            }
+        }
+
+        .filter-btn:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .filter-btn.active {
+            background-color: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        .reset-btn {
+            padding: 0.5rem 1rem;
+            background-color: var(--accent-orange);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            align-self: flex-start;
+        }
+
+        .reset-btn:hover {
+            opacity: 0.9;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background-color: var(--surface-light);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .stat-card {
+                background-color: var(--surface-dark);
+                border-color: var(--border-dark);
+            }
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.7;
+        }
+
+        .stat-highlight {
+            color: var(--accent-blue);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+        }
+
+        .chart-card {
+            background-color: var(--surface-light);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .chart-card {
+                background-color: var(--surface-dark);
+                border-color: var(--border-dark);
+                box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            }
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .chart-header:hover {
+            background-color: var(--border-light);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .chart-header:hover {
+                background-color: var(--border-dark);
+            }
+        }
+
+        .chart-header h2 {
+            font-size: 1.125rem;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .chart-body {
+            padding: 1.5rem;
+            max-height: 10000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+
+        .chart-body.collapsed {
+            max-height: 0;
+            padding: 0 1.5rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 1rem;
+        }
+
+        .chart-note {
+            font-size: 0.875rem;
+            opacity: 0.7;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--surface-light);
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 900px;
+            max-height: 80vh;
+            width: 90%;
+            overflow-y: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .modal-content {
+                background-color: var(--surface-dark);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .close-btn {
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: inherit;
+        }
+
+        .close-btn:hover {
+            opacity: 0.7;
+        }
+
+        .patient-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .patient-table th {
+            background-color: var(--border-light);
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .patient-table th {
+                background-color: var(--border-dark);
+            }
+        }
+
+        .patient-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .patient-table td {
+                border-bottom-color: var(--border-dark);
+            }
+        }
+
+        .patient-table tr:hover {
+            background-color: var(--border-light);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .patient-table tr:hover {
+                background-color: var(--border-dark);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Grace's Patient Panel Analytics</h1>
+            <p class="subtitle">SSTAR Family Health Center - Panel Data Analysis (August 2026)</p>
+            <div id="loadingMessage" style="color: #2563eb; font-weight: 500; margin-top: 1rem;">Loading patient data from Google Sheets...</div>
+        </header>
+
+        <!-- Methodology Section -->
+        <div class="collapsible-section">
+            <div class="section-header" onclick="toggleSection('methodology')">
+                <h2>Understanding the Risk Score</h2>
+                <span class="toggle-icon" id="methodology-icon">▼</span>
+            </div>
+            <div class="section-content" id="methodology-content">
+                <div class="methodology-box-content">
+                    <p>The Risk Score is calculated by counting the number of chronic disease ICD codes documented for each patient. These include:</p>
+                    <ul>
+                        <li><strong>Diabetes (E10, E11):</strong> Type 1 and Type 2 diabetes</li>
+                        <li><strong>Substance Use Disorder (F10-F19):</strong> Alcohol and drug use disorders</li>
+                        <li><strong>Pain Conditions (G89):</strong> Chronic pain syndromes</li>
+                        <li><strong>Personality Disorders (F60):</strong> Various personality disorder diagnoses</li>
+                        <li><strong>Hypertension (I10):</strong> High blood pressure</li>
+                        <li><strong>Heart Disease (I50):</strong> Heart failure and related conditions</li>
+                        <li><strong>COPD (J44):</strong> Chronic obstructive pulmonary disease</li>
+                        <li><strong>Depression (F32-F33):</strong> Depressive disorders</li>
+                        <li><strong>Asthma (J45):</strong> Asthma and reactive airway disease</li>
+                    </ul>
+                    <p><strong>Risk Score Range:</strong> 0 (no conditions) to 5+ (five or more chronic conditions)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="collapsible-section">
+            <div class="section-header" onclick="toggleSection('filters')">
+                <h2>Filters</h2>
+                <span class="toggle-icon" id="filters-icon">▼</span>
+            </div>
+            <div class="section-content" id="filters-content">
+                <div class="filters-content">
+                    <div class="filter-group-wrapper">
+                        <label>Age Group:</label>
+                        <div class="filter-group" id="ageFilters">
+                            <button class="filter-btn active" data-filter="age-all">All Ages</button>
+                            <button class="filter-btn" data-filter="age-18under">18 and Under</button>
+                            <button class="filter-btn" data-filter="age-18-64">18-64</button>
+                            <button class="filter-btn" data-filter="age-65plus">65+</button>
+                        </div>
+                    </div>
+                    <div class="filter-group-wrapper">
+                        <label>Risk Level:</label>
+                        <div class="filter-group" id="riskFilters">
+                            <button class="filter-btn active" data-filter="risk-all">All Risk Levels</button>
+                            <button class="filter-btn" data-filter="risk-0">No Conditions (0)</button>
+                            <button class="filter-btn" data-filter="risk-1">1 Condition</button>
+                            <button class="filter-btn" data-filter="risk-2plus">2+ Conditions</button>
+                            <button class="filter-btn" data-filter="risk-3plus">3+ Conditions</button>
+                        </div>
+                    </div>
+                    <button class="reset-btn" onclick="resetFilters()">Reset All Filters</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Patients</div>
+                <div class="stat-value stat-highlight" id="total-patients">176</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Visits</div>
+                <div class="stat-value stat-highlight" id="total-visits">1,652</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Risk Score</div>
+                <div class="stat-value stat-highlight" id="avg-risk">1.42</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">High-Utilization (6+ visits)</div>
+                <div class="stat-value stat-highlight" id="high-util">32</div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-grid">
+            <!-- Age Distribution Chart -->
+            <div class="chart-card">
+                <div class="chart-header" onclick="toggleChart('age')">
+                    <h2>Patient Age Distribution</h2>
+                    <span class="toggle-icon" id="age-icon">▼</span>
+                </div>
+                <div class="chart-body" id="age-body">
+                    <div class="chart-container">
+                        <canvas id="ageChart"></canvas>
+                    </div>
+                    <div class="chart-note">Click on a segment to see patient details</div>
+                </div>
+            </div>
+
+            <!-- Visit Frequency Chart -->
+            <div class="chart-card">
+                <div class="chart-header" onclick="toggleChart('visit')">
+                    <h2>Visit Frequency</h2>
+                    <span class="toggle-icon" id="visit-icon">▼</span>
+                </div>
+                <div class="chart-body" id="visit-body">
+                    <div class="chart-container">
+                        <canvas id="visitChart"></canvas>
+                    </div>
+                    <div class="chart-note">Click on a segment to see patient details</div>
+                </div>
+            </div>
+
+            <!-- Risk Complexity Chart -->
+            <div class="chart-card">
+                <div class="chart-header" onclick="toggleChart('risk')">
+                    <h2>Risk Complexity (Patients 18+)</h2>
+                    <span class="toggle-icon" id="risk-icon">▼</span>
+                </div>
+                <div class="chart-body" id="risk-body">
+                    <div class="chart-container">
+                        <canvas id="riskChart"></canvas>
+                    </div>
+                    <div class="chart-note">Click on a segment to see patient details</div>
+                </div>
+            </div>
+
+            <!-- Risk by Visit Frequency Chart -->
+            <div class="chart-card">
+                <div class="chart-header" onclick="toggleChart('riskByVisit')">
+                    <h2>Average Risk Score by Visit Frequency</h2>
+                    <span class="toggle-icon" id="riskByVisit-icon">▼</span>
+                </div>
+                <div class="chart-body" id="riskByVisit-body">
+                    <div class="chart-container">
+                        <canvas id="riskByVisitChart"></canvas>
+                    </div>
+                    <div class="chart-note">For patients with 6+ visits in last 2 years</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for patient details -->
+    <div id="patientModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Patient Details</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <table class="patient-table">
+                <thead>
+                    <tr>
+                        <th>Patient ID</th>
+                        <th>Age</th>
+                        <th>Risk Score</th>
+                        <th>Visits</th>
+                        <th>Chronic Conditions</th>
+                    </tr>
+                </thead>
+                <tbody id="patientTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Google Sheets configuration
+        const SHEET_ID = '1WXDl8RStsR7hlIkn51hyNjUVVL-1hd70hnjyadsL1gQ';
+        const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
+
+        let fullPatientData = [];
+        let dataLoaded = false;
+
+        // Fallback patient data for testing (will be replaced by Google Sheets data)
+        const fallbackPatientData = [
+            {id: 1, age: 28, risk: 0, visits: 2, conditions: []},
+            {id: 2, age: 17, risk: 0, visits: 1, conditions: []},
+            {id: 3, age: 31, risk: 0, visits: 2, conditions: []},
+            {id: 4, age: 59, risk: 5, visits: 34, conditions: ['SUD', 'Pain', 'Hypertension', 'COPD', 'Depression']},
+            {id: 5, age: 11, risk: 0, visits: 1, conditions: []},
+            {id: 6, age: 46, risk: 2, visits: 1, conditions: ['SUD', 'Depression']},
+            {id: 7, age: 5, risk: 1, visits: 2, conditions: ['Asthma']},
+            {id: 8, age: 6, risk: 0, visits: 2, conditions: []},
+            {id: 9, age: 15, risk: 0, visits: 2, conditions: []},
+            {id: 10, age: 45, risk: 0, visits: 8, conditions: []},
+            {id: 11, age: 65, risk: 5, visits: 17, conditions: ['Diabetes', 'SUD', 'Hypertension', 'COPD', 'Asthma']},
+            {id: 12, age: 7, risk: 0, visits: 2, conditions: []},
+            {id: 13, age: 34, risk: 1, visits: 10, conditions: ['SUD']},
+            {id: 14, age: 11, risk: 0, visits: 1, conditions: []},
+            {id: 15, age: 4, risk: 0, visits: 3, conditions: []},
+            {id: 16, age: 41, risk: 1, visits: 8, conditions: ['SUD']},
+            {id: 17, age: 60, risk: 3, visits: 15, conditions: ['SUD', 'Heart', 'Depression']},
+            {id: 18, age: 5, risk: 0, visits: 2, conditions: []},
+            {id: 19, age: 60, risk: 0, visits: 3, conditions: []},
+            {id: 20, age: 60, risk: 4, visits: 13, conditions: ['Diabetes', 'SUD', 'Hypertension', 'Depression']},
+            {id: 21, age: 53, risk: 2, visits: 3, conditions: ['Diabetes', 'Pain']},
+            {id: 22, age: 57, risk: 4, visits: 8, conditions: ['Diabetes', 'Pain', 'Hypertension', 'Depression']},
+            {id: 23, age: 8, risk: 0, visits: 1, conditions: []},
+            {id: 24, age: 34, risk: 1, visits: 9, conditions: ['Depression']},
+            {id: 25, age: 58, risk: 2, visits: 3, conditions: ['SUD', 'Hypertension']},
+            {id: 26, age: 69, risk: 2, visits: 7, conditions: ['Hypertension', 'COPD']},
+            {id: 27, age: 8, risk: 0, visits: 1, conditions: []},
+            {id: 28, age: 10, risk: 0, visits: 1, conditions: []},
+            {id: 29, age: 57, risk: 5, visits: 3, conditions: ['Diabetes', 'SUD', 'Hypertension', 'Depression', 'Asthma']},
+            {id: 30, age: 32, risk: 2, visits: 20, conditions: ['SUD', 'Pain']},
+            {id: 31, age: 58, risk: 4, visits: 11, conditions: ['Diabetes', 'Pain', 'Hypertension', 'Depression']},
+            {id: 32, age: 40, risk: 1, visits: 3, conditions: ['Depression']},
+            {id: 33, age: 46, risk: 4, visits: 9, conditions: ['SUD', 'Pain', 'Heart', 'Depression']},
+            {id: 34, age: 54, risk: 2, visits: 4, conditions: ['SUD', 'Hypertension']},
+            {id: 35, age: 67, risk: 1, visits: 4, conditions: ['Hypertension']},
+            {id: 36, age: 12, risk: 0, visits: 1, conditions: []},
+            {id: 37, age: 15, risk: 0, visits: 4, conditions: []},
+            {id: 38, age: 38, risk: 2, visits: 19, conditions: ['SUD', 'Pain']},
+            {id: 39, age: 7, risk: 0, visits: 2, conditions: []},
+            {id: 40, age: 38, risk: 2, visits: 1, conditions: ['Hypertension', 'Asthma']},
+            {id: 41, age: 12, risk: 0, visits: 2, conditions: []},
+            {id: 42, age: 37, risk: 0, visits: 5, conditions: []},
+            {id: 43, age: 24, risk: 3, visits: 2, conditions: ['SUD', 'Personality', 'Depression']},
+            {id: 44, age: 30, risk: 1, visits: 5, conditions: ['SUD']},
+            {id: 45, age: 29, risk: 1, visits: 3, conditions: ['SUD']},
+            {id: 46, age: 8, risk: 0, visits: 13, conditions: []},
+            {id: 47, age: 34, risk: 1, visits: 26, conditions: ['SUD']},
+            {id: 48, age: 34, risk: 1, visits: 6, conditions: ['SUD']},
+            {id: 49, age: 35, risk: 1, visits: 11, conditions: ['SUD']},
+            {id: 50, age: 12, risk: 0, visits: 2, conditions: []},
+            {id: 51, age: 15, risk: 1, visits: 4, conditions: ['Depression']},
+            {id: 52, age: 12, risk: 0, visits: 1, conditions: []},
+            {id: 53, age: 3, risk: 0, visits: 2, conditions: []},
+            {id: 54, age: 15, risk: 0, visits: 3, conditions: []},
+            {id: 55, age: 6, risk: 0, visits: 3, conditions: []},
+            {id: 56, age: 2, risk: 0, visits: 7, conditions: []},
+            {id: 57, age: 48, risk: 3, visits: 16, conditions: ['Diabetes', 'SUD', 'Hypertension']},
+            {id: 58, age: 44, risk: 2, visits: 1, conditions: ['SUD', 'Depression']},
+            {id: 59, age: 34, risk: 1, visits: 6, conditions: ['Depression']},
+            {id: 60, age: 63, risk: 2, visits: 4, conditions: ['SUD', 'Hypertension']},
+            {id: 61, age: 29, risk: 0, visits: 7, conditions: []},
+            {id: 62, age: 3, risk: 0, visits: 3, conditions: []},
+            {id: 63, age: 43, risk: 2, visits: 6, conditions: ['Pain', 'Depression']},
+            {id: 64, age: 65, risk: 3, visits: 10, conditions: ['Diabetes', 'Pain', 'Hypertension']},
+            {id: 65, age: 53, risk: 1, visits: 1, conditions: ['Hypertension']},
+            {id: 66, age: 39, risk: 3, visits: 33, conditions: ['SUD', 'Personality', 'Depression']},
+            {id: 67, age: 55, risk: 4, visits: 40, conditions: ['SUD', 'Hypertension', 'Depression', 'Asthma']},
+            {id: 68, age: 38, risk: 2, visits: 13, conditions: ['SUD', 'Depression']},
+            {id: 69, age: 49, risk: 3, visits: 130, conditions: ['Pain', 'Hypertension', 'Depression']},
+            {id: 70, age: 77, risk: 1, visits: 9, conditions: ['Hypertension']},
+            {id: 71, age: 66, risk: 2, visits: 4, conditions: ['Diabetes', 'SUD']},
+            {id: 72, age: 12, risk: 1, visits: 3, conditions: ['Asthma']},
+            {id: 73, age: 7, risk: 0, visits: 2, conditions: []},
+            {id: 74, age: 63, risk: 2, visits: 2, conditions: ['SUD', 'Hypertension']},
+            {id: 75, age: 39, risk: 0, visits: 2, conditions: []},
+            {id: 76, age: 40, risk: 1, visits: 4, conditions: ['SUD']},
+            {id: 77, age: 33, risk: 1, visits: 16, conditions: ['SUD']},
+            {id: 78, age: 43, risk: 2, visits: 17, conditions: ['SUD', 'Pain']},
+            {id: 79, age: 51, risk: 1, visits: 3, conditions: ['Diabetes']},
+            {id: 80, age: 11, risk: 0, visits: 2, conditions: []},
+            {id: 81, age: 38, risk: 2, visits: 7, conditions: ['Diabetes', 'Hypertension']},
+            {id: 82, age: 18, risk: 1, visits: 5, conditions: ['Depression']},
+            {id: 83, age: 13, risk: 0, visits: 2, conditions: []},
+            {id: 84, age: 45, risk: 2, visits: 13, conditions: ['SUD', 'Hypertension']},
+            {id: 85, age: 7, risk: 0, visits: 3, conditions: []},
+            {id: 86, age: 60, risk: 1, visits: 16, conditions: ['Hypertension']},
+            {id: 87, age: 11, risk: 0, visits: 2, conditions: []},
+            {id: 88, age: 17, risk: 0, visits: 7, conditions: []},
+            {id: 89, age: 27, risk: 0, visits: 7, conditions: []},
+            {id: 90, age: 7, risk: 0, visits: 2, conditions: []},
+            {id: 91, age: 3, risk: 0, visits: 2, conditions: []},
+            {id: 92, age: 44, risk: 4, visits: 8, conditions: ['SUD', 'Pain', 'Hypertension', 'COPD']},
+            {id: 93, age: 7, risk: 0, visits: 2, conditions: []},
+            {id: 94, age: 38, risk: 0, visits: 2, conditions: []},
+            {id: 95, age: 17, risk: 1, visits: 6, conditions: ['Asthma']},
+            {id: 96, age: 66, risk: 2, visits: 5, conditions: ['SUD', 'Depression']},
+            {id: 97, age: 10, risk: 0, visits: 7, conditions: []},
+            {id: 98, age: 66, risk: 1, visits: 9, conditions: ['Hypertension']},
+            {id: 99, age: 6, risk: 0, visits: 2, conditions: []},
+            {id: 100, age: 63, risk: 2, visits: 6, conditions: ['SUD', 'Depression']},
+            {id: 101, age: 29, risk: 1, visits: 8, conditions: ['SUD']},
+            {id: 102, age: 46, risk: 1, visits: 1, conditions: ['Asthma']},
+            {id: 103, age: 42, risk: 0, visits: 7, conditions: []},
+            {id: 104, age: 36, risk: 2, visits: 22, conditions: ['SUD', 'Depression']},
+            {id: 105, age: 50, risk: 1, visits: 10, conditions: ['Hypertension']},
+            {id: 106, age: 67, risk: 1, visits: 13, conditions: ['SUD']},
+            {id: 107, age: 16, risk: 1, visits: 5, conditions: ['Depression']},
+            {id: 108, age: 50, risk: 0, visits: 2, conditions: []},
+            {id: 109, age: 13, risk: 1, visits: 6, conditions: ['Asthma']},
+            {id: 110, age: 14, risk: 2, visits: 2, conditions: ['Depression', 'Asthma']},
+            {id: 111, age: 11, risk: 0, visits: 4, conditions: []},
+            {id: 112, age: 8, risk: 0, visits: 2, conditions: []},
+            {id: 113, age: 4, risk: 0, visits: 2, conditions: []},
+            {id: 114, age: 2, risk: 0, visits: 2, conditions: []},
+            {id: 115, age: 34, risk: 2, visits: 1, conditions: ['SUD', 'Asthma']},
+            {id: 116, age: 65, risk: 2, visits: 8, conditions: ['Diabetes', 'Hypertension']},
+            {id: 117, age: 3, risk: 0, visits: 3, conditions: []},
+            {id: 118, age: 6, risk: 1, visits: 4, conditions: ['Asthma']},
+            {id: 119, age: 51, risk: 1, visits: 3, conditions: ['SUD']},
+            {id: 120, age: 20, risk: 0, visits: 4, conditions: []},
+            {id: 121, age: 36, risk: 0, visits: 1, conditions: []},
+            {id: 122, age: 25, risk: 0, visits: 2, conditions: []},
+            {id: 123, age: 8, risk: 1, visits: 6, conditions: ['Asthma']},
+            {id: 124, age: 24, risk: 2, visits: 13, conditions: ['SUD', 'Depression']},
+            {id: 125, age: 35, risk: 1, visits: 4, conditions: ['Depression']},
+            {id: 126, age: 61, risk: 4, visits: 16, conditions: ['SUD', 'Pain', 'Hypertension', 'Depression']},
+            {id: 127, age: 7, risk: 0, visits: 3, conditions: []},
+            {id: 128, age: 13, risk: 0, visits: 3, conditions: []},
+            {id: 129, age: 5, risk: 0, visits: 2, conditions: []},
+            {id: 130, age: 7, risk: 0, visits: 1, conditions: []},
+            {id: 131, age: 23, risk: 0, visits: 26, conditions: []},
+            {id: 132, age: 17, risk: 0, visits: 4, conditions: []},
+            {id: 133, age: 11, risk: 0, visits: 1, conditions: []},
+            {id: 134, age: 44, risk: 1, visits: 15, conditions: ['SUD']},
+            {id: 135, age: 15, risk: 0, visits: 5, conditions: []},
+            {id: 136, age: 2, risk: 0, visits: 1, conditions: []},
+            {id: 137, age: 30, risk: 0, visits: 13, conditions: []},
+            {id: 138, age: 25, risk: 0, visits: 2, conditions: []},
+            {id: 139, age: 52, risk: 1, visits: 2, conditions: ['Hypertension']},
+            {id: 140, age: 47, risk: 2, visits: 6, conditions: ['SUD', 'Depression']},
+            {id: 141, age: 27, risk: 1, visits: 6, conditions: ['Depression']},
+            {id: 142, age: 53, risk: 2, visits: 5, conditions: ['Hypertension', 'Depression']},
+            {id: 143, age: 58, risk: 2, visits: 2, conditions: ['SUD', 'Depression']},
+            {id: 144, age: 43, risk: 1, visits: 3, conditions: ['SUD']},
+            {id: 145, age: 18, risk: 0, visits: 3, conditions: []},
+            {id: 146, age: 13, risk: 0, visits: 2, conditions: []},
+            {id: 147, age: 31, risk: 0, visits: 5, conditions: []},
+            {id: 148, age: 40, risk: 2, visits: 5, conditions: ['Diabetes', 'Hypertension']},
+            {id: 149, age: 97, risk: 1, visits: 2, conditions: ['Depression']},
+            {id: 150, age: 42, risk: 3, visits: 4, conditions: ['SUD', 'Personality', 'Depression']},
+            {id: 151, age: 32, risk: 0, visits: 1, conditions: []},
+            {id: 152, age: 40, risk: 0, visits: 3, conditions: []},
+            {id: 153, age: 7, risk: 0, visits: 6, conditions: []},
+            {id: 154, age: 10, risk: 0, visits: 3, conditions: []},
+            {id: 155, age: 12, risk: 0, visits: 2, conditions: []},
+            {id: 156, age: 17, risk: 1, visits: 8, conditions: ['Depression']},
+            {id: 157, age: 42, risk: 0, visits: 1, conditions: []},
+            {id: 158, age: 43, risk: 0, visits: 5, conditions: []},
+            {id: 159, age: 41, risk: 1, visits: 6, conditions: ['Pain']},
+            {id: 160, age: 2, risk: 0, visits: 5, conditions: []},
+            {id: 161, age: 18, risk: 1, visits: 2, conditions: ['Depression']},
+            {id: 162, age: 39, risk: 0, visits: 1, conditions: []},
+            {id: 163, age: 16, risk: 0, visits: 5, conditions: []},
+            {id: 164, age: 24, risk: 2, visits: 2, conditions: ['SUD', 'Depression']},
+            {id: 165, age: 6, risk: 0, visits: 2, conditions: []},
+            {id: 166, age: 8, risk: 0, visits: 4, conditions: []},
+            {id: 167, age: 2, risk: 0, visits: 3, conditions: []},
+            {id: 168, age: 17, risk: 0, visits: 1, conditions: []},
+            {id: 169, age: 52, risk: 0, visits: 1, conditions: []},
+            {id: 170, age: 6, risk: 0, visits: 1, conditions: []},
+            {id: 171, age: 43, risk: 1, visits: 6, conditions: ['Hypertension']},
+            {id: 172, age: 8, risk: 0, visits: 2, conditions: []},
+            {id: 173, age: 12, risk: 0, visits: 2, conditions: []},
+            {id: 174, age: 23, risk: 0, visits: 1, conditions: []},
+            {id: 175, age: 13, risk: 0, visits: 6, conditions: []},
+            {id: 176, age: 45, risk: 0, visits: 2, conditions: []}
+        ];
+
+        // Async function to load data from Google Sheets
+        async function loadDataFromGoogleSheets() {
+            try {
+                const response = await fetch(CSV_URL);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const csvText = await response.text();
+
+                Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: (results) => {
+                        // Transform CSV data to patient objects
+                        fullPatientData = results.data.map((row, index) => {
+                            const conditions = [];
+
+                            // Map chronic disease columns to conditions array
+                            if (row['Diabetes'] && row['Diabetes'].toString().toLowerCase() === 'true') conditions.push('Diabetes');
+                            if (row['SUD'] && row['SUD'].toString().toLowerCase() === 'true') conditions.push('SUD');
+                            if (row['Pain'] && row['Pain'].toString().toLowerCase() === 'true') conditions.push('Pain');
+                            if (row['Personality'] && row['Personality'].toString().toLowerCase() === 'true') conditions.push('Personality');
+                            if (row['Hypertension'] && row['Hypertension'].toString().toLowerCase() === 'true') conditions.push('Hypertension');
+                            if (row['Heart'] && row['Heart'].toString().toLowerCase() === 'true') conditions.push('Heart');
+                            if (row['COPD'] && row['COPD'].toString().toLowerCase() === 'true') conditions.push('COPD');
+                            if (row['Depression'] && row['Depression'].toString().toLowerCase() === 'true') conditions.push('Depression');
+                            if (row['Asthma'] && row['Asthma'].toString().toLowerCase() === 'true') conditions.push('Asthma');
+
+                            return {
+                                id: parseInt(row['Patient #']) || index + 1,
+                                age: parseInt(row['Age']) || 0,
+                                risk: parseInt(row['Risk']) || conditions.length,
+                                visits: parseInt(row['Visits']) || 0,
+                                conditions: conditions
+                            };
+                        }).filter(row => row.id && row.age >= 0);
+
+                        dataLoaded = true;
+                        document.getElementById('loadingMessage').style.display = 'none';
+                        initializeDashboard();
+                    },
+                    error: (error) => {
+                        console.error('Papa Parse error:', error);
+                        document.getElementById('loadingMessage').innerHTML = 'Error parsing data. Using fallback data...';
+                        fullPatientData = fallbackPatientData;
+                        dataLoaded = true;
+                        setTimeout(() => document.getElementById('loadingMessage').style.display = 'none', 2000);
+                        initializeDashboard();
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching data from Google Sheets:', error);
+                document.getElementById('loadingMessage').innerHTML = 'Error connecting to Google Sheets. Using fallback data...';
+                fullPatientData = fallbackPatientData;
+                dataLoaded = true;
+                setTimeout(() => document.getElementById('loadingMessage').style.display = 'none', 2000);
+                initializeDashboard();
+            }
+        }
+
+        // Initialize dashboard function that wraps all setup code
+        function initializeDashboard() {
+            filteredData = [...fullPatientData];
+            updateStats();
+            createCharts();
+        }
+
+        let filteredData = [...fullPatientData];
+        let activeFilters = { age: 'age-all', risk: 'risk-all' };
+        let chartInstances = {};
+
+        // Toggle functions
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId + '-content');
+            const icon = document.getElementById(sectionId + '-icon');
+
+            content.classList.toggle('collapsed');
+            icon.classList.toggle('collapsed');
+        }
+
+        function toggleChart(chartId) {
+            const body = document.getElementById(chartId + '-body');
+            const icon = document.getElementById(chartId + '-icon');
+
+            body.classList.toggle('collapsed');
+            icon.classList.toggle('collapsed');
+
+            // Trigger chart resize when expanding
+            if (!body.classList.contains('collapsed') && chartInstances[chartId]) {
+                setTimeout(() => chartInstances[chartId].resize(), 300);
+            }
+        }
+
+        function applyFilters() {
+            filteredData = fullPatientData.filter(patient => {
+                let ageMatch = true;
+                let riskMatch = true;
+
+                if (activeFilters.age !== 'age-all') {
+                    if (activeFilters.age === 'age-18under') ageMatch = patient.age <= 18;
+                    else if (activeFilters.age === 'age-18-64') ageMatch = patient.age > 18 && patient.age <= 64;
+                    else if (activeFilters.age === 'age-65plus') ageMatch = patient.age >= 65;
+                }
+
+                if (activeFilters.risk !== 'risk-all') {
+                    if (activeFilters.risk === 'risk-0') riskMatch = patient.risk === 0;
+                    else if (activeFilters.risk === 'risk-1') riskMatch = patient.risk === 1;
+                    else if (activeFilters.risk === 'risk-2plus') riskMatch = patient.risk >= 2;
+                    else if (activeFilters.risk === 'risk-3plus') riskMatch = patient.risk >= 3;
+                }
+
+                return ageMatch && riskMatch;
+            });
+
+            updateStats();
+            updateCharts();
+        }
+
+        function setFilter(filterType, filterId) {
+            document.querySelectorAll(`#${filterType}Filters .filter-btn`).forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`#${filterType}Filters [data-filter="${filterId}"]`).classList.add('active');
+
+            activeFilters[filterType] = filterId;
+            applyFilters();
+        }
+
+        function resetFilters() {
+            activeFilters = { age: 'age-all', risk: 'risk-all' };
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('[data-filter="age-all"], [data-filter="risk-all"]').forEach(btn => btn.classList.add('active'));
+            applyFilters();
+        }
+
+        function updateStats() {
+            const totalVisits = filteredData.reduce((sum, p) => sum + p.visits, 0);
+            const avgRisk = filteredData.length > 0
+                ? (filteredData.reduce((sum, p) => sum + p.risk, 0) / filteredData.length).toFixed(2)
+                : 0;
+            const highUtil = filteredData.filter(p => p.visits >= 6).length;
+
+            document.getElementById('total-patients').textContent = filteredData.length;
+            document.getElementById('total-visits').textContent = totalVisits.toLocaleString();
+            document.getElementById('avg-risk').textContent = avgRisk;
+            document.getElementById('high-util').textContent = highUtil;
+        }
+
+        function analyzeFiltered() {
+            const ageGroups = {
+                '18 and under': filteredData.filter(p => p.age <= 18).length,
+                '18-64': filteredData.filter(p => p.age > 18 && p.age <= 64).length,
+                '65+': filteredData.filter(p => p.age >= 65).length
+            };
+
+            const visitFreq = {
+                '1x': filteredData.filter(p => p.visits === 1).length,
+                '2x': filteredData.filter(p => p.visits === 2).length,
+                '3+': filteredData.filter(p => p.visits >= 3).length
+            };
+
+            const adults = filteredData.filter(p => p.age >= 18);
+            const risk2plus = adults.filter(p => p.risk >= 2).length;
+            const risk3plus = adults.filter(p => p.risk >= 3).length;
+
+            const highUtil = filteredData.filter(p => p.visits >= 6);
+            const avgRiskHighUtil = highUtil.length > 0
+                ? (highUtil.reduce((sum, p) => sum + p.risk, 0) / highUtil.length).toFixed(2)
+                : 0;
+
+            return { ageGroups, visitFreq, risk2plus, risk3plus, highUtil, avgRiskHighUtil };
+        }
+
+        function showPatientDetails(category, type) {
+            let patients = [];
+
+            if (type === 'age') {
+                if (category === '18 and under') patients = filteredData.filter(p => p.age <= 18);
+                else if (category === '18-64') patients = filteredData.filter(p => p.age > 18 && p.age <= 64);
+                else if (category === '65+') patients = filteredData.filter(p => p.age >= 65);
+            } else if (type === 'visit') {
+                if (category === '1x') patients = filteredData.filter(p => p.visits === 1);
+                else if (category === '2x') patients = filteredData.filter(p => p.visits === 2);
+                else if (category === '3+') patients = filteredData.filter(p => p.visits >= 3);
+            } else if (type === 'risk') {
+                const adults = filteredData.filter(p => p.age >= 18);
+                if (category === '2+ Risk Indicators') patients = adults.filter(p => p.risk >= 2);
+                else if (category === '3+ Risk Indicators') patients = adults.filter(p => p.risk >= 3);
+            }
+
+            showModal(`${category} - Patient Details`, patients);
+        }
+
+        function showModal(title, patients) {
+            document.getElementById('modalTitle').textContent = title;
+            const tbody = document.getElementById('patientTableBody');
+            tbody.innerHTML = '';
+
+            patients.forEach(patient => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>Patient #${patient.id}</td>
+                    <td>${patient.age}</td>
+                    <td>${patient.risk}</td>
+                    <td>${patient.visits}</td>
+                    <td>${patient.conditions.length > 0 ? patient.conditions.join(', ') : 'None'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('patientModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('patientModal').classList.remove('active');
+        }
+
+        const colors = {
+            blue: 'rgb(37, 99, 235)',
+            green: 'rgb(22, 163, 74)',
+            orange: 'rgb(234, 88, 12)',
+            purple: 'rgb(124, 58, 237)',
+            red: 'rgb(220, 38, 38)',
+            sky: 'rgb(14, 165, 233)',
+            emerald: 'rgb(5, 150, 105)'
+        };
+
+        function createCharts() {
+            const analysis = analyzeFiltered();
+
+            if (chartInstances.age) chartInstances.age.destroy();
+            chartInstances.age = new Chart(document.getElementById('ageChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(analysis.ageGroups),
+                    datasets: [{
+                        label: 'Number of Patients',
+                        data: Object.values(analysis.ageGroups),
+                        backgroundColor: [colors.blue, colors.green, colors.orange],
+                        borderColor: [colors.blue, colors.green, colors.orange],
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const labels = ['18 and under', '18-64', '65+'];
+                            showPatientDetails(labels[index], 'age');
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { backgroundColor: 'rgba(0, 0, 0, 0.8)', padding: 12, cornerRadius: 4 }
+                    },
+                    scales: { x: { beginAtZero: true, ticks: { stepSize: 10 } } }
+                }
+            });
+
+            if (chartInstances.visit) chartInstances.visit.destroy();
+            chartInstances.visit = new Chart(document.getElementById('visitChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(analysis.visitFreq),
+                    datasets: [{
+                        label: 'Number of Patients',
+                        data: Object.values(analysis.visitFreq),
+                        backgroundColor: [colors.sky, colors.emerald, colors.purple],
+                        borderColor: [colors.sky, colors.emerald, colors.purple],
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const labels = ['1x', '2x', '3+'];
+                            showPatientDetails(labels[index], 'visit');
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { backgroundColor: 'rgba(0, 0, 0, 0.8)', padding: 12, cornerRadius: 4 }
+                    },
+                    scales: { x: { beginAtZero: true, ticks: { stepSize: 10 } } }
+                }
+            });
+
+            if (chartInstances.risk) chartInstances.risk.destroy();
+            chartInstances.risk = new Chart(document.getElementById('riskChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['2+ Risk Indicators', '3+ Risk Indicators'],
+                    datasets: [{
+                        label: 'Patients (18+)',
+                        data: [analysis.risk2plus, analysis.risk3plus],
+                        backgroundColor: [colors.orange, colors.red],
+                        borderColor: [colors.orange, colors.red],
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const labels = ['2+ Risk Indicators', '3+ Risk Indicators'];
+                            showPatientDetails(labels[index], 'risk');
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { backgroundColor: 'rgba(0, 0, 0, 0.8)', padding: 12, cornerRadius: 4 }
+                    },
+                    scales: { x: { beginAtZero: true, ticks: { stepSize: 10 } } }
+                }
+            });
+
+            if (chartInstances.riskByVisit) chartInstances.riskByVisit.destroy();
+            chartInstances.riskByVisit = new Chart(document.getElementById('riskByVisitChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['High-Utilization Patients\n(6+ visits)'],
+                    datasets: [{
+                        label: 'Average Risk Score',
+                        data: [analysis.avgRiskHighUtil],
+                        backgroundColor: colors.purple,
+                        borderColor: colors.purple,
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { backgroundColor: 'rgba(0, 0, 0, 0.8)', padding: 12, cornerRadius: 4 }
+                    },
+                    scales: { x: { beginAtZero: true, max: 5, ticks: { stepSize: 1 } } }
+                }
+            });
+        }
+
+        function updateCharts() {
+            createCharts();
+        }
+
+        document.querySelectorAll('[data-filter]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const filter = this.dataset.filter;
+                if (filter.startsWith('age-')) {
+                    setFilter('age', filter);
+                } else if (filter.startsWith('risk-')) {
+                    setFilter('risk', filter);
+                }
+            });
+        });
+
+        // Load data from Google Sheets when page loads
+        loadDataFromGoogleSheets();
+    </script>
+</body>
+</html>
