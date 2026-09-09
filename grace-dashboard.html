@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,125 +6,219 @@
 <title>Patient Panel Dashboard</title>
 <style>
   :root{
+    /* palette */
+    --bg:#f1f2f4;
     --paper:#ffffff;
-    --panel:#faf9f7;
-    --rule:#e6e2db;
-    --rule-soft:#f0ede8;
-    --ink:#1c1b19;
-    --ink-2:#57544e;
-    --ink-3:#8a857c;
-    --accent:#c96442;
-    --accent-soft:#e8b8a6;
-    --accent-wash:#fbf1ed;
-    --flag:#9a3412;
-    --calm:#6b7f6e;
-    --shadow:0 1px 2px rgba(28,27,25,.04);
+    --panel:#f7f8fa;
+    --rule:#e2e5ea;
+    --rule-soft:#edeff3;
+    --ink:#111111;
+    --ink-2:#4d4d4d;
+    --ink-3:#7c8794;
+    --navy:#1b3f6e;
+    --periwinkle:#93b8ed;
+    --sky:#5fbef0;
+    --pink:#ee5d96;
+    --coral:#f08a6c;
+    --mint:#d5e8d0;
+    --mint-deep:#7fa87a;
+    --cream:#fdfbf5;
+    /* roles */
+    --accent:#1b3f6e;
+    --accent-soft:#93b8ed;
+    --accent-wash:#eaf1fb;
+    --flag:#f08a6c;
+    --flag-wash:#fef5f1;
+    --calm:#7fa87a;
+    --shadow:0 1px 2px rgba(27,63,110,.06);
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   }
   *{box-sizing:border-box}
   html{-webkit-text-size-adjust:100%}
   body{
     margin:0;
-    background:var(--paper);
+    background:var(--bg);
     color:var(--ink);
-    font:400 15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font:400 15px/1.6 var(--sans);
     font-feature-settings:"tnum" 1;
   }
-  h1,h2,h3{font-family:Charter,"Bitstream Charter","Iowan Old Style",Georgia,serif;font-weight:600;letter-spacing:-.01em;margin:0}
-  h1{font-size:29px;line-height:1.2}
-  h2{font-size:21px;line-height:1.25}
-  h3{font-size:16px;line-height:1.3}
+  h1,h2,h3{font-family:var(--sans);margin:0}
+  h1{font-size:40px;line-height:1.03;font-weight:800;letter-spacing:-.02em;text-transform:uppercase;color:var(--navy)}
+  h2{font-size:18px;line-height:1.2;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:var(--navy)}
+  h3{font-size:16px;line-height:1.3;font-weight:700}
   p{margin:0}
-  a{color:var(--accent)}
+  a{color:var(--navy)}
   .wrap{max-width:1120px;margin:0 auto;padding:0 28px 96px}
 
   /* ---------- header ---------- */
-  header.top{border-bottom:1px solid var(--rule);background:var(--panel)}
-  .top-inner{max-width:1120px;margin:0 auto;padding:26px 28px;display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;justify-content:space-between}
-  .titleblock p{color:var(--ink-2);font-size:14px;margin-top:6px}
+  header.top{border-bottom:2px solid var(--navy);background:var(--paper)}
+  .top-inner{max-width:1120px;margin:0 auto;padding:28px 28px 24px;display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;justify-content:space-between}
+  .eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px}
+  .titleblock p.sub{color:var(--ink-2);font-size:13.5px;margin-top:9px}
   .datatools{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   .btn{
-    font:500 14px/1 inherit;color:var(--paper);background:var(--accent);
-    border:1px solid var(--accent);border-radius:7px;padding:11px 16px;cursor:pointer;
+    font:600 13px/1 var(--sans);letter-spacing:.02em;color:var(--paper);background:var(--navy);
+    border:1px solid var(--navy);border-radius:6px;padding:11px 16px;cursor:pointer;
   }
-  .btn:hover{background:#b45936;border-color:#b45936}
-  .btn.ghost{background:transparent;color:var(--ink-2);border-color:var(--rule)}
-  .btn.ghost:hover{background:var(--rule-soft);color:var(--ink)}
-  .btn:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  .filenote{font-size:13px;color:var(--ink-3)}
+  .btn:hover{background:#14314f;border-color:#14314f}
+  .btn.ghost{background:transparent;color:var(--navy);border-color:var(--rule)}
+  .btn.ghost:hover{background:var(--accent-wash);border-color:var(--periwinkle)}
+  .btn:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+  .filenote{font-size:12.5px;color:var(--ink-3)}
+  .toolrow{max-width:1120px;margin:0 auto;padding:0 28px 16px;display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+  .linkbtn{
+    font:600 12px/1 var(--sans);letter-spacing:.03em;text-transform:uppercase;
+    color:var(--ink-3);background:none;border:none;cursor:pointer;padding:6px 8px;
+  }
+  .linkbtn:hover{color:var(--navy)}
+  .linkbtn + .linkbtn{border-left:1px solid var(--rule)}
+
+  /* ---------- collapsible sections ---------- */
+  details.band{
+    margin:0 0 22px;background:var(--paper);border:1px solid var(--rule);
+    border-radius:12px;box-shadow:var(--shadow);overflow:hidden;
+  }
+  details.band > summary{
+    list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;
+    padding:18px 22px;border-left:5px solid var(--navy);background:var(--paper);
+  }
+  details.band > summary::-webkit-details-marker{display:none}
+  details.band > summary:hover{background:var(--panel)}
+  details.band[open] > summary{border-bottom:1px solid var(--rule-soft)}
+  .chev{
+    width:18px;height:18px;flex:none;border-radius:50%;background:var(--accent-wash);
+    color:var(--navy);position:relative;transition:transform .18s ease;
+  }
+  .chev::before{
+    content:"";position:absolute;left:5px;top:6px;width:6px;height:6px;
+    border-right:2px solid currentColor;border-bottom:2px solid currentColor;
+    transform:rotate(45deg);
+  }
+  details.band[open] .chev{transform:rotate(180deg)}
+  @media (prefers-reduced-motion:reduce){.chev{transition:none}}
+  .sumcount{margin-left:auto;font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+  .band-body{padding:6px 22px 24px}
+  .band-body > p.sub{color:var(--ink-2);font-size:13.5px;margin:12px 0 0;max-width:76ch}
+  details.band.tone-insights > summary{border-left-color:var(--periwinkle)}
+  details.band.tone-summary  > summary{border-left-color:var(--sky)}
+  details.band.tone-demo     > summary{border-left-color:var(--navy)}
+  details.band.tone-dx       > summary{border-left-color:var(--pink)}
+  details.band.tone-visits   > summary{border-left-color:var(--coral)}
+  details.band.tone-defs     > summary{border-left-color:var(--mint-deep)}
 
   /* ---------- summary strip ---------- */
-  .strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:28px 0 44px}
-  .stat{background:var(--paper);padding:18px 20px}
-  .stat .n{font:600 27px/1.1 Charter,Georgia,serif;letter-spacing:-.02em}
-  .stat .l{font-size:13px;color:var(--ink-2);margin-top:5px}
+  .strip{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0 4px}
+  .stat{background:var(--panel);border:1px solid var(--rule-soft);border-radius:10px;padding:18px 18px 16px;border-top:4px solid var(--navy)}
+  .stat:nth-child(2){border-top-color:var(--periwinkle)}
+  .stat:nth-child(3){border-top-color:var(--pink)}
+  .stat:nth-child(4){border-top-color:var(--coral)}
+  .stat .n{font:800 34px/1 var(--sans);letter-spacing:-.025em;color:var(--navy)}
+  .stat .l{font-size:11.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);margin-top:9px}
 
   /* ---------- observations ---------- */
-  .obs-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:6px}
-  .obs-head p{color:var(--ink-2);font-size:14px;max-width:60ch}
-  .obs-status{font-size:13px;color:var(--ink-3)}
-  .obs-list{display:grid;gap:14px;margin:22px 0 56px}
+  .obs-status{margin-left:auto;font-size:11.5px;font-weight:600;letter-spacing:.04em;color:var(--ink-3)}
+  .obs-list{display:grid;gap:12px;margin:18px 0 4px}
   .obs{
-    border:1px solid var(--rule);border-left:3px solid var(--accent-soft);
-    border-radius:8px;background:var(--panel);padding:18px 20px;box-shadow:var(--shadow);
+    border:1px solid var(--rule);border-left:4px solid var(--periwinkle);
+    border-radius:8px;background:var(--panel);padding:16px 18px;
   }
-  .obs[data-tone="flag"]{border-left-color:var(--flag);background:#fdf6f3}
-  .obs[data-tone="steady"]{border-left-color:var(--calm)}
-  .obs h3{margin-bottom:6px}
-  .obs p{color:var(--ink-2);font-size:14.5px;max-width:80ch}
+  .obs[data-tone="flag"]{border-left-color:var(--coral);background:var(--flag-wash)}
+  .obs[data-tone="steady"]{border-left-color:var(--calm);background:#f5f9f4}
+  .obs h3{margin-bottom:6px;font-size:15px;color:var(--navy)}
+  .obs p{color:var(--ink-2);font-size:14px;max-width:88ch}
   .obs .obs-foot{margin-top:12px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
-  .obs .jump{font-size:13.5px;font-weight:500;text-decoration:none;border-bottom:1px solid var(--accent-soft);padding-bottom:1px}
-  .obs .jump:hover{border-bottom-color:var(--accent)}
-  .obs .metric{font-size:13px;color:var(--ink-3)}
+  .obs .jump{font-size:12px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;text-decoration:none;color:var(--navy);border-bottom:2px solid var(--periwinkle);padding-bottom:1px}
+  .obs .jump:hover{border-bottom-color:var(--navy)}
+  .obs .metric{font-size:12px;color:var(--ink-3)}
   .obs-empty{border:1px dashed var(--rule);border-radius:8px;padding:26px;color:var(--ink-2);font-size:14px}
-  .spinner{display:inline-block;width:11px;height:11px;border:2px solid var(--accent-soft);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-1px;margin-right:7px}
+  .spinner{display:inline-block;width:11px;height:11px;border:2px solid var(--periwinkle);border-top-color:var(--navy);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-1px;margin-right:7px}
   @keyframes spin{to{transform:rotate(360deg)}}
   @media (prefers-reduced-motion:reduce){.spinner{animation-duration:2s}}
 
-  /* ---------- sections & charts ---------- */
-  .band{margin:0 0 52px}
-  .band > h2{padding-bottom:10px;border-bottom:1px solid var(--rule)}
-  .band > h2 + p{color:var(--ink-2);font-size:14px;margin:10px 0 0;max-width:70ch}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:24px}
-  .grid1{margin-top:24px}
+  /* ---------- charts ---------- */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+  .grid1{margin-top:16px}
   figure.card{
     margin:0;border:1px solid var(--rule);border-radius:10px;background:var(--paper);
-    padding:20px 20px 14px;box-shadow:var(--shadow);scroll-margin-top:20px;
+    padding:18px 18px 12px;scroll-margin-top:20px;
   }
-  figure.card.lit{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-wash)}
-  figure.card figcaption{margin-bottom:2px}
-  figcaption .ct{font:600 15.5px/1.3 Charter,Georgia,serif}
-  figcaption .cs{font-size:13px;color:var(--ink-3);margin-top:4px}
+  figure.card.lit{border-color:var(--sky);box-shadow:0 0 0 3px var(--accent-wash)}
+  figure.card figcaption{margin-bottom:4px;padding-bottom:10px;border-bottom:1px solid var(--rule-soft)}
+  figcaption .ct{font:800 12.5px/1.35 var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--navy);display:block}
+  figcaption .cs{font-size:12.5px;color:var(--ink-3);margin-top:5px}
+  .chart{margin-top:10px}
   .chart svg{display:block;width:100%;height:auto;overflow:visible}
-  .note{font-size:12.5px;color:var(--ink-3);margin-top:10px;padding-top:10px;border-top:1px solid var(--rule-soft)}
+  .note{font-size:12.5px;color:var(--ink-2);margin-top:10px;padding-top:10px;border-top:1px solid var(--rule-soft)}
 
-  .filters{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:12px 0 14px;padding:10px 12px;background:var(--panel);border:1px solid var(--rule-soft);border-radius:7px}
-  .filters label{font-size:12.5px;color:var(--ink-2);display:flex;gap:7px;align-items:center}
+  .filters{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:12px 0 4px;padding:10px 12px;background:var(--panel);border:1px solid var(--rule-soft);border-radius:7px}
+  .filters label{font-size:11.5px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-3);display:flex;gap:7px;align-items:center}
   .filters select{
-    font:400 12.5px/1 inherit;color:var(--ink);background:var(--paper);
+    font:400 12.5px/1 var(--sans);text-transform:none;letter-spacing:0;color:var(--ink);background:var(--paper);
     border:1px solid var(--rule);border-radius:5px;padding:6px 8px;cursor:pointer;
   }
-  .filters select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
-  .filters .count{font-size:12.5px;color:var(--ink-3);margin-left:auto}
-  .filters .reset{font:400 12.5px/1 inherit;color:var(--accent);background:none;border:none;cursor:pointer;padding:6px 0;text-decoration:underline;text-underline-offset:2px}
+  .filters select:focus-visible{outline:2px solid var(--sky);outline-offset:1px}
+  .filters .count{font-size:11.5px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-3);margin-left:auto}
+  .filters .reset{font:600 11.5px/1 var(--sans);letter-spacing:.03em;text-transform:uppercase;color:var(--navy);background:none;border:none;cursor:pointer;padding:6px 0;text-decoration:underline;text-underline-offset:2px}
   .filters .reset[hidden]{display:none}
 
   /* ---------- tables ---------- */
-  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:14px}
-  th{text-align:left;font-weight:600;color:var(--ink-2);border-bottom:1px solid var(--rule);padding:8px 10px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}
+  th{text-align:left;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);border-bottom:2px solid var(--navy);padding:8px 10px}
   td{padding:8px 10px;border-bottom:1px solid var(--rule-soft);color:var(--ink-2)}
   td:first-child,th:first-child{padding-left:0}
-  tbody tr:hover td{background:var(--panel)}
+  tbody tr:nth-child(even) td{background:var(--panel)}
+  tbody tr:hover td{background:var(--accent-wash)}
   .num{text-align:right;font-variant-numeric:tabular-nums}
-  details.more{margin-top:12px}
-  details.more summary{cursor:pointer;font-size:13.5px;color:var(--accent)}
 
-  footer.foot{border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-3);font-size:13px;max-width:75ch}
-  .drop-active{outline:3px dashed var(--accent);outline-offset:-8px}
+  /* ---------- definitions ---------- */
+  .deflink{
+    display:block;margin-top:10px;padding-top:9px;border-top:1px solid var(--rule-soft);
+    font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--ink-3);text-decoration:none;
+  }
+  .deflink:hover{color:var(--navy)}
+  .deflink::before{content:"\2193\00a0\00a0"}
+  figure.card > .note + .deflink{border-top:none;padding-top:2px;margin-top:8px}
+  .defgroup{margin-top:24px}
+  .defgroup > h3{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--navy);
+    padding-bottom:7px;border-bottom:2px solid var(--navy)}
+  .def{padding:15px 0;border-bottom:1px solid var(--rule-soft);scroll-margin-top:20px}
+  .def.lit{background:var(--accent-wash);box-shadow:0 0 0 8px var(--accent-wash);border-radius:3px}
+  .def .dt{font:700 14.5px/1.35 var(--sans);color:var(--navy);margin-bottom:6px}
+  .def .dd{font-size:13.5px;color:var(--ink-2);max-width:84ch}
+  .def .dd + .dd{margin-top:5px}
+  .def code{
+    font:400 12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--accent-wash);border:1px solid #d8e4f5;border-radius:4px;
+    padding:1px 5px;color:var(--navy);
+  }
+  .def .fx{
+    display:block;margin-top:6px;padding:10px 12px;background:var(--panel);
+    border:1px solid var(--rule-soft);border-left:3px solid var(--periwinkle);border-radius:5px;
+    font:400 12.5px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    color:var(--ink);white-space:pre-wrap;overflow-x:auto;
+  }
+  .def .tag{
+    display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    padding:2px 8px;border-radius:20px;vertical-align:2px;margin-left:8px;
+  }
+  .tag.sheet{background:var(--mint);color:#41643c;border:1px solid #bcd8b6}
+  .tag.calc{background:var(--accent-wash);color:var(--navy);border:1px solid var(--periwinkle)}
+  .span2{grid-column:1/-1}
+
+  footer.foot{border-top:2px solid var(--navy);padding-top:18px;margin-top:8px;color:var(--ink-3);font-size:12.5px;max-width:80ch}
+  .drop-active{outline:3px dashed var(--sky);outline-offset:-8px}
   @media (max-width:820px){
     .grid2{grid-template-columns:1fr}
     .strip{grid-template-columns:1fr 1fr}
-    .wrap,.top-inner{padding-left:18px;padding-right:18px}
-    h1{font-size:24px}
+    .wrap,.top-inner,.toolrow{padding-left:18px;padding-right:18px}
+    h1{font-size:28px}
+    .band-body{padding-left:16px;padding-right:16px}
+  }
+  @media print{
+    details.band{break-inside:avoid}
+    details.band > summary{cursor:default}
+    .chev,.datatools,.toolrow{display:none}
   }
 </style>
 </head>
@@ -134,8 +227,9 @@
 <header class="top">
   <div class="top-inner">
     <div class="titleblock">
-      <h1>Patient panel dashboard</h1>
-      <p id="subtitle">SSTAR Family Health Center &middot; loading&hellip;</p>
+      <div class="eyebrow">SSTAR Family Health Center</div>
+      <h1>Patient Panel<br>Dashboard</h1>
+      <p class="sub" id="subtitle">Loading&hellip;</p>
     </div>
     <div class="datatools">
       <button class="btn" id="loadBtn">Load new data</button>
@@ -146,109 +240,412 @@
   </div>
 </header>
 
+<div class="toolrow">
+  <button class="linkbtn" id="expandAll">Expand all</button>
+  <button class="linkbtn" id="collapseAll">Collapse all</button>
+</div>
+
 <div class="wrap">
 
-  <div class="strip" id="strip"></div>
+  <details class="band tone-insights" id="observations">
+    <summary><span class="chev"></span><h2>Patient Insights</h2><span class="obs-status" id="obsStatus"></span></summary>
+    <div class="band-body">
+        <p class="sub">AI analysis provided based on dataset provided. Insights will only be generated when new data is loaded. Each observation links to the data set or chart with the data.</p>
+      <div class="obs-list" id="obsList">
+        <div class="obs-empty">Reading the panel&hellip;</div>
+      </div>
+  
+    </div>
+  </details>
 
-  <section class="band" id="observations">
-    <div class="obs-head">
-      <h2>AI observations</h2>
-      <span class="obs-status" id="obsStatus"></span>
+  <details class="band tone-summary" open>
+    <summary><span class="chev"></span><h2>Provider Patient Summary</h2><span class="sumcount">4 measures</span></summary>
+    <div class="band-body">
+      <div class="strip" id="strip"></div>
+      <a class="deflink" href="#def-strip" data-def="def-strip">How these are calculated</a>
+  
     </div>
-    <p>Written fresh each time data is loaded. Every observation links to the chart it came from.</p>
-    <div class="obs-list" id="obsList">
-      <div class="obs-empty">Reading the panel&hellip;</div>
-    </div>
-  </section>
+  </details>
 
-  <section class="band">
-    <h2>What Grace asked for</h2>
-    <p>The four measures from the original request, recalculated against whatever data is loaded.</p>
-    <div class="grid2">
-      <figure class="card" id="chart-age">
-        <figcaption><span class="ct">Patients by age band</span><div class="cs">Whole panel</div></figcaption>
-        <div class="chart" data-chart="age"></div>
-      </figure>
-      <figure class="card" id="chart-risk">
-        <figcaption><span class="ct">Medical complexity, adults 18+</span><div class="cs">Count of chronic disease risk codes</div></figcaption>
-        <div class="chart" data-chart="risk"></div>
-      </figure>
-      <figure class="card" id="chart-visits">
-        <figcaption><span class="ct">Office visit frequency</span><div class="cs">Total visits recorded per patient</div></figcaption>
-        <div class="filters" data-filters="visits"></div>
-        <div class="chart" data-chart="visits"></div>
-      </figure>
-      <figure class="card" id="chart-utilizers">
-        <figcaption><span class="ct">Average risk score by visit frequency</span><div class="cs">Answers the 6+ visit question, in context</div></figcaption>
-        <div class="chart" data-chart="utilizers"></div>
-        <div class="note" id="utilNote"></div>
-      </figure>
-    </div>
-  </section>
+  <details class="band tone-demo" open>
+    <summary><span class="chev"></span><h2>Patient Demographics</h2><span class="sumcount">5 charts</span></summary>
+    <div class="band-body">
+      <div class="grid2">
 
-  <section class="band">
-    <h2>Who is in the panel</h2>
-    <p>Condition mix and the age shape underneath the three broad bands.</p>
-    <div class="grid2">
-      <figure class="card" id="chart-conditions">
-        <figcaption><span class="ct">Diagnosis prevalence across the panel</span><div class="cs">Share of all patients carrying each code group</div></figcaption>
-        <div class="filters" data-filters="conditions"></div>
-        <div class="chart" data-chart="conditions"></div>
-      </figure>
-      <figure class="card" id="chart-agehist">
-        <figcaption><span class="ct">Age in ten-year bands</span><div class="cs">The detail the three-band view hides</div></figcaption>
-        <div class="chart" data-chart="agehist"></div>
-      </figure>
-      <figure class="card" id="chart-depression-age">
-        <figcaption><span class="ct">Depression diagnosis by age band</span><div class="cs">Share of each band with a depression code</div></figcaption>
-        <div class="chart" data-chart="depressionAge"></div>
-        <div class="note" id="teenNote"></div>
-      </figure>
-      <figure class="card" id="chart-comorbid">
-        <figcaption><span class="ct">Comorbidity clusters worth flagging</span><div class="cs">Combinations that stack clinical and crisis risk</div></figcaption>
-        <div class="filters" data-filters="comorbid"></div>
-        <div class="chart" data-chart="comorbid"></div>
-      </figure>
-    </div>
-  </section>
+        <figure class="card" id="chart-age">
+          <figcaption><span class="ct">Patients by age band</span><div class="cs">Whole panel</div></figcaption>
+          <div class="chart" data-chart="age"></div>
+          <a class="deflink" href="#def-age" data-def="def-age">How this is calculated</a>
+        </figure>
 
-  <section class="band">
-    <h2>Who might be slipping away</h2>
-    <p>Gaps in care and engagement patterns. These are the views built for outreach rather than reporting.</p>
-    <div class="grid2">
-      <figure class="card" id="chart-caregap">
-        <figcaption><span class="ct">Time since last visit</span><div class="cs">Split by whether the patient has a chronic condition</div></figcaption>
-        <div class="filters" data-filters="caregap"></div>
-        <div class="chart" data-chart="caregap"></div>
-      </figure>
-      <figure class="card" id="chart-onceonly">
-        <figcaption><span class="ct">Patients seen only once</span><div class="cs">By age band, split by whether that visit was over a year ago</div></figcaption>
-        <div class="filters" data-filters="onceOnly"></div>
-        <div class="chart" data-chart="onceOnly"></div>
-      </figure>
-      <figure class="card" id="chart-sud-engagement">
-        <figcaption><span class="ct">Substance use disorder patients: contact pattern</span><div class="cs">Months since last visit</div></figcaption>
-        <div class="filters" data-filters="sudEngagement"></div>
-        <div class="chart" data-chart="sudEngagement"></div>
-        <div class="note" id="sudNote"></div>
-      </figure>
-    </div>
-  </section>
+        <figure class="card" id="chart-agehist">
+          <figcaption><span class="ct">Age in ten-year bands</span><div class="cs">The detail the three-band view hides</div></figcaption>
+          <div class="chart" data-chart="agehist"></div>
+          <a class="deflink" href="#def-agehist" data-def="def-agehist">How this is calculated</a>
+        </figure>
 
-  <section class="band">
-    <h2>Highest utilizers</h2>
-    <p>The patients generating the most visits, with their conditions alongside, for case management review.</p>
-    <div class="grid1">
-      <figure class="card" id="table-toputil">
-        <figcaption><span class="ct">Most visits recorded</span><div class="cs">Top 15 by visit count</div></figcaption>
-        <div id="topUtilTable"></div>
-      </figure>
+        <figure class="card span2" id="chart-riskband">
+          <figcaption><span class="ct">Risk score by age band</span><div class="cs">How the risk codes are distributed inside each band</div></figcaption>
+          <div class="chart" data-chart="riskband"></div>
+          <a class="deflink" href="#def-riskband" data-def="def-riskband">How this is calculated</a>
+        </figure>
+
+        <figure class="card" id="chart-chronicband">
+          <figcaption><span class="ct">Chronic condition vs. healthy by age band</span><div class="cs">Split by whether the patient has a chronic condition or none</div></figcaption>
+          <div class="chart" data-chart="chronicband"></div>
+          <a class="deflink" href="#def-chronicband" data-def="def-chronicband">How this is calculated</a>
+        </figure>
+
+        <figure class="card" id="chart-avgchronic">
+          <figcaption><span class="ct">Avg. # of chronic conditions by age band</span><div class="cs">Mean count of chronic disease codes per patient</div></figcaption>
+          <div class="chart" data-chart="avgchronic"></div>
+          <a class="deflink" href="#def-avgchronic" data-def="def-avgchronic">How this is calculated</a>
+        </figure>
+
+      </div>
+  
     </div>
-  </section>
+  </details>
+
+  <details class="band tone-dx" open>
+    <summary><span class="chev"></span><h2>Diagnosis</h2><span class="sumcount">4 charts</span></summary>
+    <div class="band-body">
+        <p class="sub">What the panel is carrying, and which codes travel together.</p>
+      <div class="grid2">
+
+        <figure class="card" id="chart-conditions">
+          <figcaption><span class="ct">Diagnosis prevalence</span><div class="cs">Share of all patients carrying each code group</div></figcaption>
+          <div class="filters" data-filters="conditions"></div>
+          <div class="chart" data-chart="conditions"></div>
+          <a class="deflink" href="#def-conditions" data-def="def-conditions">How this is calculated</a>
+        </figure>
+
+        <figure class="card" id="chart-overlaps">
+          <figcaption><span class="ct">Most common overlapping diagnosis codes</span><div class="cs">Pairs of code groups appearing in the same patient</div></figcaption>
+          <div class="filters" data-filters="overlaps"></div>
+          <div class="chart" data-chart="overlaps"></div>
+          <a class="deflink" href="#def-overlaps" data-def="def-overlaps">How this is calculated</a>
+        </figure>
+
+        <figure class="card" id="chart-depression-age">
+          <figcaption><span class="ct">Depression diagnosis by age band</span><div class="cs">Share of each band with a depression code</div></figcaption>
+          <div class="chart" data-chart="depressionAge"></div>
+          <div class="note" id="teenNote"></div>
+          <a class="deflink" href="#def-depressionAge" data-def="def-depressionAge">How this is calculated</a>
+        </figure>
+
+        <figure class="card" id="chart-comorbid">
+          <figcaption><span class="ct">Comorbidity clusters worth flagging</span><div class="cs">Combinations that stack clinical and crisis risk</div></figcaption>
+          <div class="filters" data-filters="comorbid"></div>
+          <div class="chart" data-chart="comorbid"></div>
+          <a class="deflink" href="#def-comorbid" data-def="def-comorbid">How this is calculated</a>
+        </figure>
+
+      </div>
+  
+    </div>
+  </details>
+
+  <details class="band tone-visits" open>
+    <summary><span class="chev"></span><h2>Visits</h2><span class="sumcount">6 charts + table</span></summary>
+    <div class="band-body">
+        <p class="sub">Contact frequency, gaps in care, and the patients carrying the most visits.</p>
+      <div class="grid2">
+
+        <figure class="card" id="chart-visits">
+          <figcaption><span class="ct">Office visit frequency</span><div class="cs">Total visits recorded per patient</div></figcaption>
+          <div class="filters" data-filters="visits"></div>
+          <div class="chart" data-chart="visits"></div>
+          <a class="deflink" href="#def-visits" data-def="def-visits">How this is calculated</a>
+        </figure>
+
+        <figure class="card" id="chart-utilizers">
+          <figcaption><span class="ct">Visit frequency by average risk score</span><div class="cs">Average risk score within each visit band</div></figcaption>
+          <div class="chart" data-chart="utilizers"></div>
+          <div class="note" id="utilNote"></div>
+          <a class="deflink" href="#def-utilizers" data-def="def-utilizers">How this is calculated</a>
+        </figure>
+
+        <figure class="card" id="chart-caregap">
+          <figcaption><span class="ct">Time since last visit</span><div class="cs">Split by whether the patient has a chronic condition</div></figcaption>
+          <div class="filters" data-filters="caregap"></div>
+          <div class="chart" data-chart="caregap"></div>
+          <a class="deflink" href="#def-caregap" data-def="def-caregap">How this is calculated</a>
+        </figure>
+
+        <figure class="card" id="chart-onceonly">
+          <figcaption><span class="ct">Patients seen only once</span><div class="cs">By age band, split by whether that visit was over a year ago</div></figcaption>
+          <div class="filters" data-filters="onceOnly"></div>
+          <div class="chart" data-chart="onceOnly"></div>
+          <a class="deflink" href="#def-onceOnly" data-def="def-onceOnly">How this is calculated</a>
+        </figure>
+
+        <figure class="card" id="chart-once-risk">
+          <figcaption><span class="ct">Patients seen once by risk score</span><div class="cs">By risk score</div></figcaption>
+          <div class="filters" data-filters="onceByRisk"></div>
+          <div class="chart" data-chart="onceByRisk"></div>
+          <a class="deflink" href="#def-onceByRisk" data-def="def-onceByRisk">How this is calculated</a>
+        </figure>
+
+        <figure class="card" id="chart-diagnosis-gap">
+          <figcaption><span class="ct">Diagnosis code by months since last visit</span><div class="cs">Choose a diagnosis to see its contact pattern</div></figcaption>
+          <div class="filters" data-filters="diagnosisGap"></div>
+          <div class="chart" data-chart="diagnosisGap"></div>
+          <div class="note" id="dxNote"></div>
+          <a class="deflink" href="#def-diagnosisGap" data-def="def-diagnosisGap">How this is calculated</a>
+        </figure>
+
+      </div>
+      <div class="grid1">
+        <figure class="card" id="table-toputil">
+          <figcaption><span class="ct">Most visits recorded</span><div class="cs">Top 30 by visit count. The patients generating the most visits, with their conditions alongside, for case management review.</div></figcaption>
+          <div id="topUtilTable"></div>
+          <a class="deflink" href="#def-toputil" data-def="def-toputil">How this is calculated</a>
+        </figure>
+      </div>
+  
+    </div>
+  </details>
+
+  <details class="band tone-defs" id="definitions" open>
+    <summary><span class="chev"></span><h2>Definitions</h2><span class="sumcount">formulas</span></summary>
+    <div class="band-body">
+        <p class="sub">Every number on this page, written against the column names in the panel spreadsheet. Fields shown in <code>code</code> are columns in the sheet. Anything marked <span class="tag calc">calculated</span> is derived by this dashboard rather than read straight from a column, and the derivation is spelled out.</p>
+
+      <div class="defgroup">
+        <h3>Shared terms</h3>
+
+        <div class="def" id="def-term-panel">
+          <div class="dt">Panel <span class="tag calc">calculated</span></div>
+          <div class="dd">Every row in the sheet that has a numeric <code>Age</code>. Rows with a blank or non-numeric age are dropped before anything else runs, so they never reach a chart.</div>
+        </div>
+
+        <div class="def" id="def-term-ageband">
+          <div class="dt">Age band <span class="tag calc">calculated</span></div>
+          <div class="dd">Derived from <code>Age</code>:</div>
+          <div class="fx">18 and under  =  Age &lt;= 18
+  19-64         =  Age &gt; 18  AND  Age &lt; 65
+  65+           =  Age &gt;= 65</div>
+        </div>
+
+        <div class="def" id="def-term-risk">
+          <div class="dt">Risk score <span class="tag sheet">sheet column</span></div>
+          <div class="dd">Read directly from the <code>Risk</code> column. It is the count of the nine diagnosis columns that hold a code for that patient:</div>
+          <div class="fx">Risk = COUNTA(Diabetes, SUD, Pain, Personality, Hypertension,
+                  Heart, COPD, Depression, Asthma)</div>
+          <div class="dd">A patient with hypertension and depression scores 2. Note that this weights every code group equally, so a substance use code counts the same as a diabetes code.</div>
+        </div>
+
+        <div class="def" id="def-term-chronic">
+          <div class="dt">Chronic disease code <span class="tag calc">calculated</span></div>
+          <div class="dd">Used by the age-band average and the time-since-last-visit split. It counts only the five medical chronic disease columns, not the behavioural health ones:</div>
+          <div class="fx">chronic disease = COUNTA(Diabetes, Hypertension, Heart, COPD, Asthma) &gt; 0</div>
+        </div>
+
+        <div class="def" id="def-term-overall">
+          <div class="dt">Overall Diagnosis <span class="tag sheet">sheet column</span></div>
+          <div class="dd">Read directly from the <code>Overall Diagnosis</code> column, which holds either <code>Chronic</code> or <code>Healthy</code>. This is a wider definition than the chronic disease code above, because it counts all nine diagnosis columns.</div>
+          <div class="dd">If a file is loaded without that column, the dashboard fills it in:</div>
+          <div class="fx">Overall Diagnosis = IF(Risk &gt;= 1, "Chronic", "Healthy")</div>
+        </div>
+
+        <div class="def" id="def-term-asof">
+          <div class="dt">As-of date <span class="tag calc">calculated</span></div>
+          <div class="dd">There is no report date in the sheet, so one is inferred from the data. The dashboard takes the most recent date found anywhere in <code>Encounter dates</code> and adds 14 days, on the assumption that an extract is pulled shortly after the last visit it contains.</div>
+          <div class="fx">as-of = MAX(all Encounter dates in the file) + 14 days</div>
+        </div>
+
+        <div class="def" id="def-term-months">
+          <div class="dt">Months since last visit <span class="tag calc">calculated</span></div>
+          <div class="dd"><code>Encounter dates</code> is a comma-separated list of MM-DD-YYYY dates. The latest one is taken as the patient's last visit, and the gap is expressed in average months of 30.44 days.</div>
+          <div class="fx">months since last visit = (as-of - MAX(Encounter dates)) / 30.44</div>
+          <div class="dd">A patient with no parseable date is excluded from any chart that buckets by this value.</div>
+        </div>
+
+        <div class="def" id="def-term-pct">
+          <div class="dt">The percentage shown beside every count <span class="tag calc">calculated</span></div>
+          <div class="dd">Every count-based chart prints the patient count with its share underneath. The denominator is stated in each chart's definition below, because it is not always the whole panel. Charts whose value is already an average or already a percentage do not get a second percentage added.</div>
+        </div>
+
+        <div class="def" id="def-term-filters">
+          <div class="dt">The age band and risk score filters <span class="tag calc">calculated</span></div>
+          <div class="dd">Where a chart has filters, they subset the rows before the chart's formula runs, and the percentage denominator shrinks with the selection. The risk score filter matches one exact value of <code>Risk</code>, from 0 through 8.</div>
+        </div>
+      </div>
+
+      <div class="defgroup">
+        <h3>Provider Patient Summary</h3>
+        <div class="def" id="def-strip">
+          <div class="dt">The four summary tiles</div>
+          <div class="fx">Patients in panel        = COUNT(Patient #)
+  Adults over 18           = COUNT(Patient # where Age &gt; 18)
+  Adults with 2+ risk codes= COUNT(Age &gt; 18 AND Risk &gt;= 2) / COUNT(Age &gt; 18) * 100
+  Not seen in over 12 mo   = COUNT(months since last visit &gt; 12)</div>
+          <div class="dd">These four tiles ignore the per-chart filters and always describe the whole loaded file.</div>
+        </div>
+      </div>
+
+      <div class="defgroup">
+        <h3>Patient Demographics</h3>
+
+        <div class="def" id="def-age">
+          <div class="dt">Patients by age band</div>
+          <div class="fx">bar   = COUNT(Patient # where age band = this band)
+  share = bar / COUNT(Patient #) * 100</div>
+        </div>
+
+        <div class="def" id="def-agehist">
+          <div class="dt">Age in ten-year bands</div>
+          <div class="dd">Buckets are upper-bound inclusive, so a patient aged exactly 30 falls in 21-30.</div>
+          <div class="fx">bar   = COUNT(Patient # where lower &lt; Age &lt;= upper)
+          buckets 0-10, 11-20, 21-30, 31-40, 41-50, 51-60, 61-70, 71-80, 80+
+  share = bar / COUNT(Patient #) * 100</div>
+        </div>
+
+        <div class="def" id="def-riskband">
+          <div class="dt">Risk score by age band <span class="tag calc">calculated</span></div>
+          <div class="dd">A stacked column per age band. Each segment is a value of <code>Risk</code>, with 4 and above collapsed into one segment so the chart stays readable.</div>
+          <div class="fx">segment = COUNT(Patient # where age band = this band AND Risk = n)
+            top segment uses Risk &gt;= 4
+  share   = segment / COUNT(Patient # in this age band) * 100</div>
+          <div class="dd">The percentage is the share of that age band, not of the panel, so each column's segments sum to 100%.</div>
+        </div>
+
+        <div class="def" id="def-chronicband">
+          <div class="dt">Chronic condition vs. healthy by age band</div>
+          <div class="dd">Uses the <code>Overall Diagnosis</code> column, so a patient with only a substance use, depression, pain or personality code still counts as Chronic here.</div>
+          <div class="fx">bar   = COUNT(Patient # where age band = this band
+                          AND Overall Diagnosis = "Chronic" or "Healthy")
+  share = bar / COUNT(Patient # in this age band) * 100</div>
+        </div>
+
+        <div class="def" id="def-avgchronic">
+          <div class="dt">Avg. # of chronic conditions by age band <span class="tag calc">calculated</span></div>
+          <div class="dd">A mean, so no percentage is shown. Counts only the five medical chronic disease columns, which is why it runs lower than the <code>Risk</code> column would.</div>
+          <div class="fx">per patient = COUNTA(Diabetes, Hypertension, Heart, COPD, Asthma)
+  bar         = AVERAGE(per patient) across all patients in the age band</div>
+        </div>
+      </div>
+
+      <div class="defgroup">
+        <h3>Diagnosis</h3>
+
+        <div class="def" id="def-conditions">
+          <div class="dt">Diagnosis prevalence</div>
+          <div class="dd">One bar per diagnosis column. A patient carrying three codes appears in three bars, so the bars deliberately sum to more than the panel.</div>
+          <div class="fx">bar   = COUNTA(this diagnosis column) across the filtered rows
+  share = bar / COUNT(filtered Patient #) * 100</div>
+        </div>
+
+        <div class="def" id="def-overlaps">
+          <div class="dt">Most common overlapping diagnosis codes <span class="tag calc">calculated</span></div>
+          <div class="dd">Not a column in the sheet. The dashboard takes all 36 possible pairs of the nine diagnosis columns, counts the patients holding both codes, drops empty pairs and shows the ten largest.</div>
+          <div class="fx">for each pair (A, B) of the nine diagnosis columns:
+      bar   = COUNT(Patient # where A is not blank AND B is not blank)
+      share = bar / COUNT(filtered Patient #) * 100
+  rank by bar descending, keep the top 10</div>
+          <div class="dd">A patient with three codes contributes to three different pairs, so these bars overlap each other by design.</div>
+        </div>
+
+        <div class="def" id="def-depressionAge">
+          <div class="dt">Depression diagnosis by age band</div>
+          <div class="dd">The bar is already a percentage, so no second percentage is added.</div>
+          <div class="fx">bar = COUNTA(Depression where age band = this band)
+        / COUNT(Patient # in this age band) * 100</div>
+          <div class="dd">The note underneath counts patients aged 18 and under with a non-blank <code>Depression</code> value, and reports the youngest and oldest of them.</div>
+        </div>
+
+        <div class="def" id="def-comorbid">
+          <div class="dt">Comorbidity clusters worth flagging <span class="tag calc">calculated</span></div>
+          <div class="dd">Four named combinations, chosen because each one stacks clinical and crisis risk. They are not columns in the sheet.</div>
+          <div class="fx">SUD + depression            = SUD and Depression both not blank
+  SUD + chronic pain          = SUD and Pain both not blank
+  SUD + depression + pain     = all three not blank
+  Chronic illness + depression= Depression not blank AND
+                                COUNTA(Diabetes, Hypertension, Heart,
+                                       COPD, Asthma) &gt; 0
+  share = bar / COUNT(filtered Patient #) * 100</div>
+        </div>
+      </div>
+
+      <div class="defgroup">
+        <h3>Visits</h3>
+
+        <div class="def" id="def-visits">
+          <div class="dt">Office visit frequency</div>
+          <div class="fx">bar   = COUNT(Patient # where Visits = 1), (Visits = 2), (Visits &gt;= 3)
+  share = bar / COUNT(filtered Patient #) * 100</div>
+          <div class="dd"><code>Visits</code> is the total visit count in the sheet. It is not the number of dates listed in <code>Encounter dates</code>, which is truncated to the five most recent.</div>
+        </div>
+
+        <div class="def" id="def-utilizers">
+          <div class="dt">Visit frequency by average risk score <span class="tag calc">calculated</span></div>
+          <div class="dd">A mean, so no percentage is shown.</div>
+          <div class="fx">bar = AVERAGE(Risk) across patients in each Visits bucket
+        buckets: Visits = 1, Visits = 2, 3 &lt;= Visits &lt;= 5, Visits &gt;= 6</div>
+          <div class="dd">The note underneath counts patients with <code>Visits</code> of 6 or more and averages their <code>Risk</code>.</div>
+        </div>
+
+        <div class="def" id="def-caregap">
+          <div class="dt">Time since last visit</div>
+          <div class="dd">Two series, split on the chronic disease code definition above, which is the narrow five-column one rather than <code>Overall Diagnosis</code>.</div>
+          <div class="fx">bar   = COUNT(Patient # where months since last visit falls in
+                          0-6, 6-12, 12-18 or 18+ months)
+          split by COUNTA(Diabetes, Hypertension, Heart, COPD, Asthma) &gt; 0
+  share = bar / COUNT(patients in that same series) * 100</div>
+          <div class="dd">Each series is its own denominator, so the two colours can be compared directly even when one is much larger.</div>
+        </div>
+
+        <div class="def" id="def-onceOnly">
+          <div class="dt">Patients seen only once</div>
+          <div class="fx">population = Patient # where Visits = 1
+  bar        = COUNT(population in this age band,
+                     split on months since last visit &gt; 12)
+  share      = bar / COUNT(population) * 100</div>
+          <div class="dd">The denominator is every once-only patient in the current selection, not the whole panel, so the six bars sum to 100%.</div>
+        </div>
+
+        <div class="def" id="def-onceByRisk">
+          <div class="dt">Patients seen once by risk score</div>
+          <div class="dd">The same once-only population as the chart above, cut by <code>Risk</code> instead of age. Only risk scores that actually occur in the file are drawn.</div>
+          <div class="fx">population = Patient # where Visits = 1
+  bar        = COUNT(population where Risk = n)
+  share      = bar / COUNT(population) * 100</div>
+        </div>
+
+        <div class="def" id="def-diagnosisGap">
+          <div class="dt">Diagnosis code by months since last visit <span class="tag calc">calculated</span></div>
+          <div class="dd">Pick a diagnosis in the filter to see the contact pattern for the patients carrying it. With <em>All diagnoses</em> selected the chart shows every patient in the current selection.</div>
+          <div class="fx">population = Patient # where the chosen diagnosis column is not blank
+  bar        = COUNT(population where months since last visit falls in
+                     0-3, 3-6, 6-12, 12-18, 18-24 or 24+ months)
+  share      = bar / COUNT(population) * 100</div>
+          <div class="dd">The note underneath compares the average <code>Visits</code> of that group against everyone else in the selection, and counts those past six months without a visit.</div>
+        </div>
+
+        <div class="def" id="def-toputil">
+          <div class="dt">Most visits recorded</div>
+          <div class="fx">rows = SORT(all patients, Visits descending), first 30
+  Since last visit column = months since last visit, rounded
+  Conditions column       = the diagnosis columns that are not blank</div>
+          <div class="dd">This table is not filtered by the age band or risk score controls.</div>
+        </div>
+      </div>
+
+      <div class="defgroup">
+        <h3>Patient Insights</h3>
+        <div class="def" id="def-insights">
+          <div class="dt">How the observations are written <span class="tag calc">calculated</span></div>
+          <div class="dd">On each data load the dashboard assembles the aggregate counts shown on this page, sends only those aggregates to Claude, and asks for observations that each cite a number and point at one chart. No patient rows leave the browser. If that call cannot be made, a built-in rules engine writes the same observations from threshold tests against the same aggregates.</div>
+        </div>
+      </div>
+  
+    </div>
+  </details>
 
   <footer class="foot">
     <p>Data stays in this browser. Nothing is uploaded when you load a file. If the AI narrative is generated, only the aggregate counts shown on this page are sent, never individual patient rows.</p>
-    <p style="margin-top:8px">To refresh: export Grace's spreadsheet with the same column headers, then choose Load new data. Charts, tables and observations all recalculate.</p>
+    <p style="margin-top:8px">To refresh: export Grace's spreadsheet with the same column headers, then choose Load new data. Charts, tables, definitions and observations all recalculate.</p>
   </footer>
 </div>
 
@@ -1232,7 +1629,12 @@ const EMBEDDED_CSV = `Patient #,Age,Diabetes,SUD,Pain,Personality,Hypertension,H
 973,26,,,,,,,,,,0,"12-09-2024, 09-25-2024",2
 974,10,,,,,,,,,,0,"10-22-2025, 02-20-2025, 01-31-2025, 12-10-2024",4`;
 
+/* Nine diagnosis columns as they are named in the sheet. */
+const DX_ORDER = ['SUD','Depression','Hypertension','Pain','Diabetes','Asthma','COPD','Heart','Personality'];
+/* The five medical chronic disease columns. */
 const CHRONIC = ['Diabetes','Hypertension','Heart','COPD','Asthma'];
+const DX_LABEL  = c => c==='SUD' ? 'Substance use' : c==='Pain' ? 'Chronic pain' : c;
+const DX_SHORT  = c => c==='SUD' ? 'SUD' : c==='Pain' ? 'Pain' : c;
 let STATE = { rows: [], asOf: null, source: 'Panel extract, Sep 2026' };
 
 function parseCSV(text){
@@ -1258,7 +1660,7 @@ function toRecords(matrix){
   const idx = name => head.findIndex(h=>h.toLowerCase().replace(/[^a-z]/g,'')===name);
   const map = {
     id: idx('patient'), age: idx('age'), risk: idx('risk'), visits: idx('visits'),
-    dates: idx('encounterdates'),
+    dates: idx('encounterdates'), overall: idx('overalldiagnosis'),
     Diabetes: idx('diabetes'), SUD: idx('sud'), Pain: idx('pain'),
     Personality: idx('personality'), Hypertension: idx('hypertension'),
     Heart: idx('heart'), COPD: idx('copd'), Depression: idx('depression'), Asthma: idx('asthma')
@@ -1275,9 +1677,13 @@ function toRecords(matrix){
       visits: parseFloat(r[map.visits])||0,
       dates: parseDates(r[map.dates])
     };
-    ['Diabetes','SUD','Pain','Personality','Hypertension','Heart','COPD','Depression','Asthma'].forEach(k=>{
-      rec[k] = map[k]>=0 ? String(r[map[k]]||'').trim() : '';
-    });
+    DX_ORDER.forEach(k=>{ rec[k] = map[k]>=0 ? String(r[map[k]]||'').trim() : ''; });
+    /* Overall Diagnosis: read the sheet column when it is there, otherwise derive it
+       as Risk >= 1 -> Chronic, which is how the column behaves in the source file. */
+    const raw = map.overall>=0 ? String(r[map.overall]||'').trim() : '';
+    rec.overall = raw ? (/^chronic$/i.test(raw) ? 'Chronic' : /^healthy$/i.test(raw) ? 'Healthy' : raw)
+                      : (rec.risk>=1 ? 'Chronic' : 'Healthy');
+    rec.overallDerived = !raw;
     out.push(rec);
   }
   return out;
@@ -1296,9 +1702,15 @@ function parseDates(s){
 /* ============================================================
    2. METRICS  — every number on the page comes from here
    ============================================================ */
+const has = (r,f) => r[f] && r[f].length>0;
+const bandOf = a => a<=18 ? 'under18' : (a<65 ? 'a1864' : 'a65');
+const BAND_KEYS = ['under18','a1864','a65'];
+const BAND_LABELS = ['18 and under','19-64','65+'];
+const mean = a => a.length ? a.reduce((s,x)=>s+x,0)/a.length : 0;
+const chronicCount = r => CHRONIC.filter(c=>has(r,c)).length;
+
 function computeMetrics(rows, asOf){
-  const has = (r,f)=> r[f] && r[f].length>0;
-  const hasChronic = r => CHRONIC.some(c=>has(r,c));
+  const hasChronic = r => chronicCount(r)>0;
   const monthsSince = r => {
     if(!r.dates.length) return null;
     const last = new Date(Math.max(...r.dates.map(d=>d.getTime())));
@@ -1308,9 +1720,8 @@ function computeMetrics(rows, asOf){
                     r._dep = has(r,'Depression'); r._pain = has(r,'Pain'); });
 
   const n = rows.length;
-  const band = a => a<=18 ? 'under18' : (a<65 ? 'a1864' : 'a65');
   const ages = {under18:0,a1864:0,a65:0};
-  rows.forEach(r=>ages[band(r.age)]++);
+  rows.forEach(r=>ages[bandOf(r.age)]++);
 
   const adults = rows.filter(r=>r.age>18);
   const risk2 = adults.filter(r=>r.risk>=2).length;
@@ -1321,24 +1732,36 @@ function computeMetrics(rows, asOf){
   const v3 = rows.filter(r=>r.visits>=3).length;
 
   const hi = rows.filter(r=>r.visits>=6);
-  const mean = a => a.length ? a.reduce((s,x)=>s+x,0)/a.length : 0;
   const bucket = v => v===1?'1 visit':v===2?'2 visits':v<6?'3-5 visits':'6+ visits';
   const buckets = ['1 visit','2 visits','3-5 visits','6+ visits'];
   const riskByBucket = buckets.map(b=>mean(rows.filter(r=>bucket(r.visits)===b).map(r=>r.risk)));
 
-  const condOrder = ['SUD','Depression','Hypertension','Pain','Diabetes','Asthma','COPD','Heart','Personality'];
-  const condCounts = condOrder.map(c=>rows.filter(r=>has(r,c)).length);
+  const condCounts = DX_ORDER.map(c=>rows.filter(r=>has(r,c)).length);
 
   const decadeEdges = [0,10,20,30,40,50,60,70,80,120];
   const decLabels = ['0-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','80+'];
   const decades = decLabels.map((_,i)=>rows.filter(r=>r.age>decadeEdges[i] && r.age<=decadeEdges[i+1]).length);
 
-  const depByBand = ['under18','a1864','a65'].map(b=>{
-    const g = rows.filter(r=>band(r.age)===b);
-    return g.length ? rows.filter(r=>band(r.age)===b && r._dep).length/g.length*100 : 0;
+  const depByBand = BAND_KEYS.map(b=>{
+    const g = rows.filter(r=>bandOf(r.age)===b);
+    return g.length ? g.filter(r=>r._dep).length/g.length*100 : 0;
   });
   const teens = rows.filter(r=>r.age<=18 && r._dep);
   const teenAges = teens.map(r=>r.age).sort((a,b)=>a-b);
+
+  /* risk score distribution inside each age band, 4+ collapsed */
+  const riskLevels = [0,1,2,3,4];
+  const riskByBand = riskLevels.map(lv=>BAND_KEYS.map(b=>
+    rows.filter(r=>bandOf(r.age)===b && (lv===4 ? r.risk>=4 : r.risk===lv)).length));
+  const bandTotals = BAND_KEYS.map(b=>rows.filter(r=>bandOf(r.age)===b).length);
+
+  /* Overall Diagnosis split by age band */
+  const chronicByBand = BAND_KEYS.map(b=>rows.filter(r=>bandOf(r.age)===b && r.overall==='Chronic').length);
+  const healthyByBand = BAND_KEYS.map(b=>rows.filter(r=>bandOf(r.age)===b && r.overall!=='Chronic').length);
+  const avgChronicByBand = BAND_KEYS.map(b=>{
+    const g = rows.filter(r=>bandOf(r.age)===b);
+    return g.length ? mean(g.map(chronicCount)) : 0;
+  });
 
   const clusters = [
     {label:'SUD + depression', n: rows.filter(r=>r._sud && r._dep).length},
@@ -1358,8 +1781,17 @@ function computeMetrics(rows, asOf){
                        .sort((a,b)=> b.risk-a.risk || (b._msl||0)-(a._msl||0));
 
   const once = rows.filter(r=>r.visits===1);
-  const onceRecent = ['under18','a1864','a65'].map(b=>once.filter(r=>band(r.age)===b && !(r._msl>12)).length);
-  const onceLapsed = ['under18','a1864','a65'].map(b=>once.filter(r=>band(r.age)===b && r._msl>12).length);
+  const onceRecent = BAND_KEYS.map(b=>once.filter(r=>bandOf(r.age)===b && !(r._msl>12)).length);
+  const onceLapsed = BAND_KEYS.map(b=>once.filter(r=>bandOf(r.age)===b && r._msl>12).length);
+
+  /* top overlapping pairs across the nine diagnosis columns */
+  const overlapPairs = [];
+  for(let i=0;i<DX_ORDER.length;i++) for(let j=i+1;j<DX_ORDER.length;j++){
+    const a=DX_ORDER[i], b=DX_ORDER[j];
+    const c = rows.filter(r=>has(r,a)&&has(r,b)).length;
+    if(c>0) overlapPairs.push({label:`${DX_SHORT(a)} + ${DX_SHORT(b)}`, n:c});
+  }
+  overlapPairs.sort((a,b)=>b.n-a.n);
 
   const sud = rows.filter(r=>r._sud);
   const sudGap = gapLabels.map((_,i)=>sud.filter(r=>r._msl!=null && r._msl>=gapEdges[i] && r._msl<gapEdges[i+1]).length);
@@ -1367,19 +1799,21 @@ function computeMetrics(rows, asOf){
   const sudVisits = mean(adultSud.map(r=>r.visits));
   const nonSudVisits = mean(adults.filter(r=>!r._sud).map(r=>r.visits));
 
-  const topUtil = [...rows].sort((a,b)=>b.visits-a.visits).slice(0,15);
+  const topUtil = [...rows].sort((a,b)=>b.visits-a.visits).slice(0,30);
 
   return {
-    n, asOf, ages, band,
+    n, asOf, ages,
     adults: adults.length, risk2, risk3,
     pctRisk2: adults.length? risk2/adults.length*100:0,
     pctRisk3: adults.length? risk3/adults.length*100:0,
     v1, v2, v3,
     highUtil: hi.length, highUtilAvgRisk: mean(hi.map(r=>r.risk)),
     buckets, riskByBucket,
-    condOrder, condCounts,
+    condOrder: DX_ORDER, condCounts,
     decLabels, decades,
     depByBand, teens: teens.length, teenAgeMin: teenAges[0], teenAgeMax: teenAges[teenAges.length-1],
+    riskLevels, riskByBand, bandTotals, chronicByBand, healthyByBand, avgChronicByBand,
+    overlapPairs,
     clusters,
     gapLabels, gapChronic, gapOther,
     lapsedChronic, outreach,
@@ -1391,20 +1825,33 @@ function computeMetrics(rows, asOf){
     sudGap, sudVisits, nonSudVisits,
     sudLapsed6: sud.filter(r=>r._msl>6).length, sudLapsed12: sud.filter(r=>r._msl>12).length,
     lapsed12All: rows.filter(r=>r._msl!=null && r._msl>12).length,
+    overallDerived: rows.length ? rows[0].overallDerived : false,
     topUtil, rows
   };
 }
 
 /* ============================================================
    3. CHART PRIMITIVES  — plain SVG, no dependencies
+   Every count chart prints the value and its share together.
+   Pass a series `base` (or `bases`, one per category) to switch
+   the percentage on. Averages and percent charts pass neither.
    ============================================================ */
-const C = {accent:'#c96442', soft:'#e8b8a6', calm:'#6b7f6e', ink:'#57544e', faint:'#8a857c', rule:'#e6e2db'};
+/* Palette: navy, periwinkle, sky, pink, coral, mint. Categorical series follow
+   that order; sequential ramps run light blue to navy. */
+const C = {accent:'#93b8ed', navy:'#1b3f6e', soft:'#c9dcf6', sky:'#5fbef0',
+           pink:'#ee5d96', coral:'#f08a6c', mint:'#7fa87a',
+           ink:'#1b3f6e', faint:'#7c8794', rule:'#e2e5ea'};
+const RAMP = ['#dde9f9','#bdd4f2','#93b8ed','#4a86c9','#1b3f6e'];
+const RAMP_INK = ['#1b3f6e','#1b3f6e','#1b3f6e','#ffffff','#ffffff'];
 const svgEl=(t,a={})=>{const e=document.createElementNS('http://www.w3.org/2000/svg',t);for(const k in a)e.setAttribute(k,a[k]);return e;};
 const fmt = v => Math.abs(v)>=100 ? Math.round(v).toLocaleString() : (Math.round(v*100)/100).toString();
+const pctTxt = (v,base) => base>0 ? `${(v/base*100).toFixed(1)}%` : '';
+const baseFor = (s,i) => s.bases ? s.bases[i] : (s.base||0);
 
 function barChart(host, {cats, series, yTitle, xTitle, valueFmt=fmt, legend=false}){
   host.innerHTML='';
-  const W=520, H=280, mL=52, mR=12, mT=16, mB=(legend?58:46);
+  const anyPct = series.some(s=>s.bases || s.base>0);
+  const W=520, H=(anyPct?306:280), mL=52, mR=12, mT=(anyPct?34:16), mB=(legend?58:46);
   const svg=svgEl('svg',{viewBox:`0 0 ${W} ${H}`, role:'img'});
   const pw=W-mL-mR, ph=H-mT-mB;
   const maxV=Math.max(1,...series.flatMap(s=>s.values));
@@ -1418,17 +1865,27 @@ function barChart(host, {cats, series, yTitle, xTitle, valueFmt=fmt, legend=fals
     t.textContent=valueFmt(val); svg.appendChild(t);
   }
 
-  const groupW=pw/cats.length, inner=Math.min(groupW*0.7, 62*series.length);
+  const groupW=pw/cats.length, inner=Math.min(groupW*0.72, 66*series.length);
   const barW=inner/series.length;
   cats.forEach((c,i)=>{
     const gx=mL+groupW*i+(groupW-inner)/2;
     series.forEach((s,j)=>{
       const v=s.values[i]||0, h=Math.max(0,(v/top)*ph);
-      svg.appendChild(svgEl('rect',{x:gx+barW*j, y:mT+ph-h, width:barW-3, height:h,
+      svg.appendChild(svgEl('rect',{x:gx+barW*j, y:mT+ph-h, width:Math.max(barW-3,1), height:h,
         fill:s.color||C.accent, rx:2}));
       if(v>0){
-        const t=svgEl('text',{x:gx+barW*j+(barW-3)/2, y:mT+ph-h-6,'text-anchor':'middle','font-size':11.5,fill:C.ink,'font-weight':500});
-        t.textContent=valueFmt(v); svg.appendChild(t);
+        const cw=Math.max(barW-3,1), cx=gx+barW*j+cw/2;
+        const fs = cw<26 ? 9 : cw<40 ? 10 : 11.5;
+        const base = baseFor(s,i);
+        if(base>0){
+          const t=svgEl('text',{x:cx,y:mT+ph-h-17,'text-anchor':'middle','font-size':fs,fill:C.ink,'font-weight':600});
+          t.textContent=valueFmt(v); svg.appendChild(t);
+          const p=svgEl('text',{x:cx,y:mT+ph-h-5,'text-anchor':'middle','font-size':Math.max(8.5,fs-1.5),fill:C.faint});
+          p.textContent=pctTxt(v,base); svg.appendChild(p);
+        } else {
+          const t=svgEl('text',{x:cx,y:mT+ph-h-6,'text-anchor':'middle','font-size':fs,fill:C.ink,'font-weight':500});
+          t.textContent=valueFmt(v); svg.appendChild(t);
+        }
       }
     });
     const lab=svgEl('text',{x:mL+groupW*i+groupW/2, y:mT+ph+17,'text-anchor':'middle','font-size':11.5,fill:C.ink});
@@ -1438,20 +1895,81 @@ function barChart(host, {cats, series, yTitle, xTitle, valueFmt=fmt, legend=fals
   svg.appendChild(svgEl('line',{x1:mL,x2:W-mR,y1:mT+ph,y2:mT+ph,stroke:'#cfc9c0','stroke-width':1}));
   if(yTitle){const t=svgEl('text',{x:-(mT+ph/2),y:13,transform:'rotate(-90)','text-anchor':'middle','font-size':11,fill:C.faint});t.textContent=yTitle;svg.appendChild(t);}
   if(xTitle){const t=svgEl('text',{x:mL+pw/2,y:H-(legend?26:6),'text-anchor':'middle','font-size':11,fill:C.faint});t.textContent=xTitle;svg.appendChild(t);}
-  if(legend){
-    let x=mL;
-    series.forEach(s=>{
-      svg.appendChild(svgEl('rect',{x, y:H-14, width:10, height:10, fill:s.color||C.accent, rx:2}));
-      const t=svgEl('text',{x:x+15,y:H-5,'font-size':11.5,fill:C.ink}); t.textContent=s.name;
-      svg.appendChild(t); x+=22+s.name.length*6.4;
-    });
-  }
+  if(legend) drawLegend(svg, series, mL, H-14);
   host.appendChild(svg);
 }
 
-function hBarChart(host,{cats,values,valueFmt=fmt,xTitle}){
+/* 100% stacked: every column is drawn full height so the mix inside a small
+   category stays as readable as the mix inside a large one. Segment labels
+   carry the raw patient count and the share of that column. */
+function stackedBarChart(host,{cats, series, catTotals, yTitle, xTitle}){
   host.innerHTML='';
-  const rowH=26, W=520, mL=140, mR=44, mT=8, mB=xTitle?30:8;
+  const W=520, H=316, mL=52, mR=12, mT=30, mB=74;
+  const svg=svgEl('svg',{viewBox:`0 0 ${W} ${H}`, role:'img'});
+  const pw=W-mL-mR, ph=H-mT-mB;
+  const totals = cats.map((_,i)=>series.reduce((s,se)=>s+(se.values[i]||0),0));
+  const top=100;
+
+  for(let i=0;i<=4;i++){
+    const val=top*i/4, yy=mT+ph-(val/top)*ph;
+    svg.appendChild(svgEl('line',{x1:mL,x2:W-mR,y1:yy,y2:yy,stroke:C.rule,'stroke-width':1}));
+    const t=svgEl('text',{x:mL-9,y:yy+4,'text-anchor':'end','font-size':11,fill:C.faint});
+    t.textContent=`${val}%`; svg.appendChild(t);
+  }
+
+  const groupW=pw/cats.length, barW=Math.min(groupW*0.5, 84);
+  cats.forEach((c,i)=>{
+    const gx=mL+groupW*i+(groupW-barW)/2;
+    const denom = (catTotals && catTotals[i]) || totals[i] || 1;
+    let acc=0;
+    series.forEach((s,j)=>{
+      const v=s.values[i]||0;
+      if(v<=0) return;
+      const share=v/denom*100;
+      const h=(share/top)*ph, yy=mT+ph-((acc+share)/top)*ph;
+      svg.appendChild(svgEl('rect',{x:gx, y:yy, width:barW, height:h, fill:s.color||C.accent}));
+      const ink = s.ink || '#ffffff';
+      if(h>=21){
+        const t=svgEl('text',{x:gx+barW/2,y:yy+h/2-2,'text-anchor':'middle','font-size':11,fill:ink,'font-weight':600});
+        t.textContent=fmt(v); svg.appendChild(t);
+        const p=svgEl('text',{x:gx+barW/2,y:yy+h/2+10,'text-anchor':'middle','font-size':9.5,fill:ink,'opacity':.85});
+        p.textContent=pctTxt(v,denom); svg.appendChild(p);
+      } else if(h>=13){
+        const t=svgEl('text',{x:gx+barW/2,y:yy+h/2+4,'text-anchor':'middle','font-size':10,fill:ink,'font-weight':600});
+        t.textContent=fmt(v); svg.appendChild(t);
+      }
+      acc+=share;
+    });
+    const tot=svgEl('text',{x:gx+barW/2, y:mT-9,'text-anchor':'middle','font-size':11.5,fill:C.ink,'font-weight':600});
+    tot.textContent=`${fmt(totals[i])} patients`; svg.appendChild(tot);
+    const lab=svgEl('text',{x:mL+groupW*i+groupW/2, y:mT+ph+17,'text-anchor':'middle','font-size':11.5,fill:C.ink});
+    lab.textContent=c; svg.appendChild(lab);
+  });
+
+  svg.appendChild(svgEl('line',{x1:mL,x2:W-mR,y1:mT+ph,y2:mT+ph,stroke:'#cfc9c0','stroke-width':1}));
+  if(yTitle){const t=svgEl('text',{x:-(mT+ph/2),y:13,transform:'rotate(-90)','text-anchor':'middle','font-size':11,fill:C.faint});t.textContent=yTitle;svg.appendChild(t);}
+  if(xTitle){const t=svgEl('text',{x:mL+pw/2,y:H-30,'text-anchor':'middle','font-size':11,fill:C.faint});t.textContent=xTitle;svg.appendChild(t);}
+  drawLegend(svg, series, mL, H-12);
+  host.appendChild(svg);
+}
+
+function drawLegend(svg, series, x0, yBase){
+  let x=x0, y=yBase;
+  series.forEach(s=>{
+    const w = 22 + s.name.length*6.3;
+    if(x + w > 512){ x = x0; y += 15; }
+    svg.appendChild(svgEl('rect',{x, y:y-9, width:10, height:10, fill:s.color||C.accent, rx:2}));
+    const t=svgEl('text',{x:x+15,y,'font-size':11.5,fill:C.ink}); t.textContent=s.name;
+    svg.appendChild(t); x += w;
+  });
+}
+
+function hBarChart(host,{cats,values,valueFmt=fmt,xTitle,base=0}){
+  host.innerHTML='';
+  const longest = cats.reduce((m,c)=>Math.max(m,String(c).length),0);
+  const rowH=26, W=520;
+  const mL=Math.min(212, Math.max(120, longest*6.15+14));
+  const mR=base>0?104:44, mT=8, mB=xTitle?30:8;
   const H=mT+mB+rowH*cats.length;
   const svg=svgEl('svg',{viewBox:`0 0 ${W} ${H}`,role:'img'});
   const pw=W-mL-mR, top=niceTop(Math.max(1,...values));
@@ -1465,68 +1983,77 @@ function hBarChart(host,{cats,values,valueFmt=fmt,xTitle}){
     const lab=svgEl('text',{x:mL-10,y:yy+rowH/2+4,'text-anchor':'end','font-size':11.5,fill:C.ink});
     lab.textContent=c; svg.appendChild(lab);
     const val=svgEl('text',{x:mL+w+7,y:yy+rowH/2+4,'font-size':11.5,fill:C.ink,'font-weight':500});
-    val.textContent=valueFmt(v); svg.appendChild(val);
+    val.textContent = base>0 ? `${valueFmt(v)} (${pctTxt(v,base)})` : valueFmt(v);
+    svg.appendChild(val);
   });
   svg.appendChild(svgEl('line',{x1:mL,x2:mL,y1:mT,y2:mT+rowH*cats.length,stroke:'#cfc9c0'}));
   if(xTitle){const t=svgEl('text',{x:mL+pw/2,y:H-8,'text-anchor':'middle','font-size':11,fill:C.faint});t.textContent=xTitle;svg.appendChild(t);}
   host.appendChild(svg);
 }
 
+/* Pick an axis maximum that divides into four whole-number gridlines, so a
+   count axis never shows something like 62.5 patients. */
 function niceTop(v){
   if(v<=0) return 1;
-  const mag=Math.pow(10,Math.floor(Math.log10(v)));
-  const s=v/mag;
-  const step = s<=1?1:s<=2?2:s<=2.5?2.5:s<=5?5:10;
-  return step*mag;
+  const rough=v/4;
+  const mag=Math.pow(10,Math.floor(Math.log10(rough)));
+  const s=rough/mag;
+  const step=[1,1.5,2,2.5,3,4,5,6,8,10].find(x=>s<=x)*mag;
+  return step*4;
 }
 
 /* ============================================================
    4. RENDER
    ============================================================ */
 /* --- per-chart filter state ------------------------------------- */
-const FILTERABLE = ['visits','conditions','comorbid','caregap','onceOnly','sudEngagement'];
+const FILTERABLE = ['conditions','overlaps','comorbid','visits','caregap','onceOnly','onceByRisk','diagnosisGap'];
+/* which controls each filterable chart gets */
+const FILTER_CONTROLS = {
+  onceByRisk: ['band'],
+  diagnosisGap: ['band','risk','dx'],
+};
+const controlsFor = k => FILTER_CONTROLS[k] || ['band','risk'];
+
 const FILTERS = {};
-FILTERABLE.forEach(k=>FILTERS[k]={band:'all', risk:'all'});
+FILTERABLE.forEach(k=>FILTERS[k]={band:'all', risk:'all', dx:'all'});
 
 const BANDS = [['all','All ages'],['under18','18 and under'],['a1864','19-64'],['a65','65+']];
-const RISKS = [['all','All risk scores'],['2plus','2 or more'],['3plus','3 or more'],
-               ['0','0'],['1','1'],['2','2'],['3','3'],['4','4'],['5','5'],['6','6'],['7','7']];
-
-function bandOf(a){ return a<=18?'under18':(a<65?'a1864':'a65'); }
+/* Risk score is filtered one exact value at a time, 0 through 8. */
+const RISKS = [['all','All risk scores'],['0','0'],['1','1'],['2','2'],['3','3'],
+               ['4','4'],['5','5'],['6','6'],['7','7'],['8','8']];
 
 function filterRows(rows, f){
   return rows.filter(r=>{
     if(f.band!=='all' && bandOf(r.age)!==f.band) return false;
-    if(f.risk==='all') return true;
-    if(f.risk==='2plus') return r.risk>=2;
-    if(f.risk==='3plus') return r.risk>=3;
-    return r.risk===+f.risk;
+    if(f.risk!=='all' && r.risk!==+f.risk) return false;
+    return true;
   });
 }
 
 function buildFilterBars(){
+  const dxOptions = [['all','All diagnoses'], ...DX_ORDER.map(k=>[k, DX_LABEL(k)])];
+  const sel = (f,k,opts) =>
+    `<label>${f==='band'?'Age band':f==='risk'?'Risk score':'Diagnosis'}
+      <select data-f="${f}" data-k="${k}">${opts.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select>
+     </label>`;
   document.querySelectorAll('[data-filters]').forEach(host=>{
     const key=host.dataset.filters;
-    host.innerHTML =
-      `<label>Age band
-        <select data-f="band" data-k="${key}">${BANDS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select>
-       </label>
-       <label>Risk score
-        <select data-f="risk" data-k="${key}">${RISKS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select>
-       </label>
-       <button class="reset" data-reset="${key}" hidden>Clear</button>
+    const parts = controlsFor(key).map(f=>
+      sel(f, key, f==='band'?BANDS : f==='risk'?RISKS : dxOptions));
+    host.innerHTML = parts.join('') +
+      `<button class="reset" data-reset="${key}" hidden>Clear</button>
        <span class="count" data-count="${key}"></span>`;
   });
-  document.querySelectorAll('.filters select').forEach(sel=>{
-    sel.addEventListener('change',()=>{
-      FILTERS[sel.dataset.k][sel.dataset.f]=sel.value;
-      drawChart(sel.dataset.k);
+  document.querySelectorAll('.filters select').forEach(s=>{
+    s.addEventListener('change',()=>{
+      FILTERS[s.dataset.k][s.dataset.f]=s.value;
+      drawChart(s.dataset.k);
     });
   });
   document.querySelectorAll('.filters .reset').forEach(btn=>{
     btn.addEventListener('click',()=>{
       const k=btn.dataset.reset;
-      FILTERS[k]={band:'all',risk:'all'};
+      FILTERS[k]={band:'all',risk:'all',dx:'all'};
       document.querySelectorAll(`.filters select[data-k="${k}"]`).forEach(s=>s.value='all');
       drawChart(k);
     });
@@ -1535,33 +2062,35 @@ function buildFilterBars(){
 
 /* --- filterable chart renderers ---------------------------------- */
 const GAP_EDGES=[0,6,12,18,1e9], GAP_LABELS=['0-6 months','6-12 months','12-18 months','18+ months'];
-const COND_ORDER=['SUD','Depression','Hypertension','Pain','Diabetes','Asthma','COPD','Heart','Personality'];
-const COND_LABEL=c=>c==='SUD'?'Substance use':c==='Pain'?'Chronic pain':c;
-const has=(r,f)=>r[f]&&r[f].length>0;
+const DXGAP_EDGES=[0,3,6,12,18,24,1e9];
+const DXGAP_LABELS=['0-3 mo','3-6 mo','6-12 mo','12-18 mo','18-24 mo','24+ mo'];
 
 function drawChart(key){
   const m=window.__metrics; if(!m) return;
   const f=FILTERS[key];
   const rows=filterRows(m.rows,f);
   const q=document.querySelector(`[data-chart="${key}"]`);
-  const active = f.band!=='all' || f.risk!=='all';
+  const uses=controlsFor(key);
+  const active = (uses.includes('band') && f.band!=='all')
+              || (uses.includes('risk') && f.risk!=='all')
+              || (uses.includes('dx')   && f.dx!=='all');
 
   const cnt=document.querySelector(`[data-count="${key}"]`);
-  if(cnt) cnt.textContent = active
+  if(cnt) cnt.textContent = (rows.length!==m.n)
     ? `${rows.length.toLocaleString()} of ${m.n.toLocaleString()} patients`
     : `${m.n.toLocaleString()} patients`;
   const btn=document.querySelector(`[data-reset="${key}"]`);
   if(btn) btn.hidden=!active;
 
   if(!rows.length){
-    q.innerHTML='<p class="note">No patients match this combination of age band and risk score.</p>';
-    if(key==='sudEngagement') document.getElementById('sudNote').textContent='';
+    q.innerHTML='<p class="note">No patients match this combination of filters.</p>';
+    if(key==='diagnosisGap') document.getElementById('dxNote').textContent='';
     return;
   }
 
   if(key==='visits'){
     barChart(q,{cats:['1 visit','2 visits','3+ visits'],
-      series:[{name:'Patients',values:[
+      series:[{name:'Patients',base:rows.length,values:[
         rows.filter(r=>r.visits===1).length,
         rows.filter(r=>r.visits===2).length,
         rows.filter(r=>r.visits>=3).length]}],
@@ -1569,64 +2098,97 @@ function drawChart(key){
   }
 
   if(key==='conditions'){
-    const vals=COND_ORDER.map(c=>rows.filter(r=>has(r,c)).length);
-    hBarChart(q,{cats:COND_ORDER.map(COND_LABEL), values:vals,
-      valueFmt:v=>`${v} (${(v/rows.length*100).toFixed(1)}%)`});
+    hBarChart(q,{cats:DX_ORDER.map(DX_LABEL),
+      values:DX_ORDER.map(c=>rows.filter(r=>has(r,c)).length),
+      base:rows.length, xTitle:'Patients carrying the code'});
+  }
+
+  if(key==='overlaps'){
+    const pairs=[];
+    for(let i=0;i<DX_ORDER.length;i++) for(let j=i+1;j<DX_ORDER.length;j++){
+      const a=DX_ORDER[i], b=DX_ORDER[j];
+      const c=rows.filter(r=>has(r,a)&&has(r,b)).length;
+      if(c>0) pairs.push([`${DX_SHORT(a)} + ${DX_SHORT(b)}`, c]);
+    }
+    pairs.sort((x,y)=>y[1]-x[1]);
+    const topPairs=pairs.slice(0,10);
+    if(!topPairs.length){
+      q.innerHTML='<p class="note">No patient in this selection carries two diagnosis codes at once.</p>';
+      return;
+    }
+    hBarChart(q,{cats:topPairs.map(p=>p[0]), values:topPairs.map(p=>p[1]),
+      base:rows.length, xTitle:'Patients carrying both codes'});
   }
 
   if(key==='comorbid'){
-    const chronic=r=>CHRONIC.some(c=>has(r,c));
     const clusters=[
       ['SUD + depression', rows.filter(r=>has(r,'SUD')&&has(r,'Depression')).length],
       ['SUD + chronic pain', rows.filter(r=>has(r,'SUD')&&has(r,'Pain')).length],
       ['SUD + depression + pain', rows.filter(r=>has(r,'SUD')&&has(r,'Depression')&&has(r,'Pain')).length],
-      ['Chronic illness + depression', rows.filter(r=>chronic(r)&&has(r,'Depression')).length]
+      ['Chronic illness + depression', rows.filter(r=>chronicCount(r)>0&&has(r,'Depression')).length]
     ];
-    hBarChart(q,{cats:clusters.map(c=>c[0]), values:clusters.map(c=>c[1]), xTitle:'Patients'});
+    hBarChart(q,{cats:clusters.map(c=>c[0]), values:clusters.map(c=>c[1]),
+      base:rows.length, xTitle:'Patients'});
   }
 
   if(key==='caregap'){
     const inBucket=(r,i)=>r._msl!=null && r._msl>=GAP_EDGES[i] && r._msl<GAP_EDGES[i+1];
+    const cN=rows.filter(r=>r._chronic).length, oN=rows.filter(r=>!r._chronic).length;
     barChart(q,{cats:GAP_LABELS,
-      series:[{name:'Has chronic condition',color:C.accent,
+      series:[{name:'Has chronic condition',color:C.navy,base:cN,
                values:GAP_LABELS.map((_,i)=>rows.filter(r=>r._chronic&&inBucket(r,i)).length)},
-              {name:'No chronic condition',color:C.soft,
+              {name:'No chronic condition',color:C.accent,base:oN,
                values:GAP_LABELS.map((_,i)=>rows.filter(r=>!r._chronic&&inBucket(r,i)).length)}],
       yTitle:'Patients', legend:true});
   }
 
   if(key==='onceOnly'){
     const once=rows.filter(r=>r.visits===1);
-    const bands=['under18','a1864','a65'], labels=['18 and under','19-64','65+'];
-    barChart(q,{cats:labels,
-      series:[{name:'Seen within 12 months',color:C.soft,
-               values:bands.map(b=>once.filter(r=>bandOf(r.age)===b && !(r._msl>12)).length)},
-              {name:'Over 12 months ago',color:C.accent,
-               values:bands.map(b=>once.filter(r=>bandOf(r.age)===b && r._msl>12).length)}],
+    if(!once.length){ q.innerHTML='<p class="note">No patients in this selection were seen only once.</p>'; return; }
+    barChart(q,{cats:BAND_LABELS,
+      series:[{name:'Seen within 12 months',color:C.accent,base:once.length,
+               values:BAND_KEYS.map(b=>once.filter(r=>bandOf(r.age)===b && !(r._msl>12)).length)},
+              {name:'Over 12 months ago',color:C.coral,base:once.length,
+               values:BAND_KEYS.map(b=>once.filter(r=>bandOf(r.age)===b && r._msl>12).length)}],
       yTitle:'Patients seen once', legend:true});
   }
 
-  if(key==='sudEngagement'){
-    const sud=rows.filter(r=>has(r,'SUD'));
-    if(!sud.length){
-      q.innerHTML='<p class="note">No substance use disorder patients in this selection.</p>';
-      document.getElementById('sudNote').textContent='';
+  if(key==='onceByRisk'){
+    const once=rows.filter(r=>r.visits===1);
+    if(!once.length){ q.innerHTML='<p class="note">No patients in this selection were seen only once.</p>'; return; }
+    const maxR=Math.min(8, Math.max(0,...rows.map(r=>r.risk)));
+    const cats=[], vals=[];
+    for(let s=0;s<=maxR;s++){ cats.push(String(s)); vals.push(once.filter(r=>r.risk===s).length); }
+    barChart(q,{cats, series:[{name:'Patients seen once',base:once.length,values:vals}],
+      yTitle:'Patients seen once', xTitle:'Risk score'});
+  }
+
+  if(key==='diagnosisGap'){
+    const dx=f.dx||'all';
+    const sel = dx==='all' ? rows : rows.filter(r=>has(r,dx));
+    const label = dx==='all' ? 'patients' : `${DX_LABEL(dx).toLowerCase()} patients`;
+    const note=document.getElementById('dxNote');
+    if(!sel.length){
+      q.innerHTML=`<p class="note">No ${label} in this selection.</p>`;
+      note.textContent='';
       return;
     }
-    barChart(q,{cats:GAP_LABELS,
-      series:[{name:'Patients', values:GAP_LABELS.map((_,i)=>
-        sud.filter(r=>r._msl!=null && r._msl>=GAP_EDGES[i] && r._msl<GAP_EDGES[i+1]).length)}],
-      yTitle:'SUD patients', xTitle:'Time since last visit'});
-    const mean=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:0;
-    const others=rows.filter(r=>!has(r,'SUD'));
-    document.getElementById('sudNote').textContent =
-      `${sud.length} substance use patients in this selection, averaging ${mean(sud.map(r=>r.visits)).toFixed(1)} visits against ${mean(others.map(r=>r.visits)).toFixed(1)} for everyone else shown. ${sud.filter(r=>r._msl>6).length} have not been seen in over six months.`;
+    barChart(q,{cats:DXGAP_LABELS,
+      series:[{name:'Patients', base:sel.length,
+        values:DXGAP_LABELS.map((_,i)=>sel.filter(r=>
+          r._msl!=null && r._msl>=DXGAP_EDGES[i] && r._msl<DXGAP_EDGES[i+1]).length)}],
+      yTitle:'Patients', xTitle:'Months since last visit'});
+    const others = dx==='all' ? [] : rows.filter(r=>!has(r,dx));
+    const quiet6 = sel.filter(r=>r._msl>6).length;
+    note.textContent = dx==='all'
+      ? `${sel.length.toLocaleString()} patients in this selection, averaging ${mean(sel.map(r=>r.visits)).toFixed(1)} visits. ${quiet6} have not been seen in over six months.`
+      : `${sel.length.toLocaleString()} ${label} in this selection, averaging ${mean(sel.map(r=>r.visits)).toFixed(1)} visits against ${mean(others.map(r=>r.visits)).toFixed(1)} for everyone else shown. ${quiet6} have not been seen in over six months.`;
   }
 }
 
 function render(m){
   document.getElementById('subtitle').textContent =
-    `SSTAR Family Health Center · ${m.n.toLocaleString()} patients · data as of ${m.asOf.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`;
+    `${m.n.toLocaleString()} patients · data as of ${m.asOf.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`;
 
   document.getElementById('strip').innerHTML = [
     [m.n.toLocaleString(),'Patients in panel'],
@@ -1637,28 +2199,46 @@ function render(m){
 
   const q = s => document.querySelector(`[data-chart="${s}"]`);
 
-  barChart(q('age'),{cats:['18 and under','19-64','65+'],
-    series:[{name:'Patients',values:[m.ages.under18,m.ages.a1864,m.ages.a65]}],
+  /* --- Patient Demographics --- */
+  barChart(q('age'),{cats:BAND_LABELS,
+    series:[{name:'Patients',base:m.n,values:[m.ages.under18,m.ages.a1864,m.ages.a65]}],
     yTitle:'Patients'});
 
-  barChart(q('risk'),{cats:['0-1 risk codes','2 or more','3 or more'],
-    series:[{name:'Adults',values:[m.adults-m.risk2,m.risk2,m.risk3]}],
-    yTitle:'Adults 18+'});
+  barChart(q('agehist'),{cats:m.decLabels,
+    series:[{name:'Patients',base:m.n,values:m.decades}],
+    yTitle:'Patients', xTitle:'Age'});
 
-  barChart(q('utilizers'),{cats:m.buckets,
-    series:[{name:'Average risk',values:m.riskByBucket}],
-    yTitle:'Average risk score', valueFmt:v=>v.toFixed(2)});
-  document.getElementById('utilNote').textContent =
-    `${m.highUtil.toLocaleString()} patients have 6 or more visits. Their average risk score is ${m.highUtilAvgRisk.toFixed(2)}.`;
+  stackedBarChart(q('riskband'),{
+    cats:BAND_LABELS,
+    catTotals:m.bandTotals,
+    series:m.riskLevels.map((lv,i)=>({
+      name: lv===4 ? '4+ risk codes' : `${lv} risk code${lv===1?'':'s'}`,
+      color:RAMP[i], ink:RAMP_INK[i], values:m.riskByBand[i]})),
+    yTitle:'Share of age band'});
 
-  barChart(q('agehist'),{cats:m.decLabels,series:[{name:'Patients',values:m.decades}],yTitle:'Patients',xTitle:'Age'});
+  barChart(q('chronicband'),{cats:BAND_LABELS,
+    series:[{name:'Chronic',color:C.navy,bases:m.bandTotals,values:m.chronicByBand},
+            {name:'Healthy',color:C.accent,bases:m.bandTotals,values:m.healthyByBand}],
+    yTitle:'Patients', legend:true});
 
-  barChart(q('depressionAge'),{cats:['18 and under','19-64','65+'],
+  barChart(q('avgchronic'),{cats:BAND_LABELS,
+    series:[{name:'Average chronic conditions',values:m.avgChronicByBand}],
+    yTitle:'Avg. conditions per patient', valueFmt:v=>v.toFixed(2)});
+
+  /* --- Diagnosis --- */
+  barChart(q('depressionAge'),{cats:BAND_LABELS,
     series:[{name:'Share with depression code',values:m.depByBand}],
     yTitle:'% of age band', valueFmt:v=>v.toFixed(0)+'%'});
   document.getElementById('teenNote').textContent = m.teens
     ? `${m.teens} patients aged 18 and under carry a depression diagnosis, ranging from age ${m.teenAgeMin} to ${m.teenAgeMax}.`
     : 'No pediatric depression diagnoses in this extract.';
+
+  /* --- Visits --- */
+  barChart(q('utilizers'),{cats:m.buckets,
+    series:[{name:'Average risk',values:m.riskByBucket}],
+    yTitle:'Average risk score', valueFmt:v=>v.toFixed(2)});
+  document.getElementById('utilNote').textContent =
+    `${m.highUtil.toLocaleString()} patients have 6 or more visits. Their average risk score is ${m.highUtilAvgRisk.toFixed(2)}.`;
 
   FILTERABLE.forEach(drawChart);
 
@@ -1666,11 +2246,9 @@ function render(m){
 }
 
 function condList(r){
-  const names={Diabetes:'Diabetes',Hypertension:'Hypertension',Heart:'Heart',COPD:'COPD',
-    Asthma:'Asthma',Depression:'Depression',SUD:'Substance use',Pain:'Chronic pain',Personality:'Personality'};
-  return Object.keys(names).filter(k=>r[k]).map(k=>names[k]).join(', ') || '\u2014';
+  return DX_ORDER.filter(k=>r[k]).map(DX_LABEL).join(', ') || '—';
 }
-function gapText(r){ return r._msl==null ? '\u2014' : `${r._msl.toFixed(0)} mo`; }
+function gapText(r){ return r._msl==null ? '—' : `${r._msl.toFixed(0)} mo`; }
 
 function utilTable(list){
   return `<table><thead><tr><th>Patient</th><th class="num">Age</th><th class="num">Visits</th>
@@ -1695,12 +2273,28 @@ function buildObservations(m){
       metric:`${m.sudPct.toFixed(1)}% of panel`});
   }
 
+  if(m.overlapPairs.length){
+    const t=m.overlapPairs[0];
+    o.push({tone:'watch', chart:'chart-overlaps',
+      title:`${t.label} is the most common pair of codes in the panel`,
+      body:`${t.n.toLocaleString()} patients carry both, which is ${pct(t.n,m.n).toFixed(1)}% of everyone in the file. Pairs matter more than single codes for planning, because a patient holding two codes usually needs two different care pathways coordinated by the same visit. The overlap chart ranks the ten largest pairings if you want the rest.`,
+      metric:`${t.n.toLocaleString()} patients`});
+  }
+
   if(m.outreach.length){
     const worst = m.outreach.filter(r=>r.risk>=3).length;
     o.push({tone:'flag', chart:'chart-visits',
       title:`${m.outreach.length} high-risk patients have been seen twice or fewer`,
-      body:`These patients carry two or more chronic disease codes but almost no contact with the clinic${worst?`, and ${worst} of them carry three or more`:''}. This is the group where a scheduled outreach call is cheaper than the emergency department visit that follows a year of no management. Set the visit frequency chart to a risk score of 2 or more to see how thin the one and two visit columns get.`,
+      body:`These patients carry two or more chronic disease codes but almost no contact with the clinic${worst?`, and ${worst} of them carry three or more`:''}. This is the group where a scheduled outreach call is cheaper than the emergency department visit that follows a year of no management. Step the visit frequency chart through risk scores 3, 4 and 5 to see how thin the one and two visit columns get at the top end.`,
       metric:`${pct(m.outreach.length,m.n).toFixed(1)}% of panel`});
+  }
+
+  const bandGap = m.bandTotals[2] ? m.riskByBand[4][2]/m.bandTotals[2]*100 : 0;
+  if(bandGap > 0){
+    o.push({tone:'watch', chart:'chart-riskband',
+      title:`Complexity concentrates sharply in the 65+ band`,
+      body:`${bandGap.toFixed(1)}% of patients aged 65 and over carry four or more risk codes, against ${m.bandTotals[1]?(m.riskByBand[4][1]/m.bandTotals[1]*100).toFixed(1):'0'}% of the 19 to 64 band. The 65+ group is the smallest of the three by headcount, so the absolute numbers stay manageable, which makes it the most realistic band to build a standing review cadence around.`,
+      metric:`${bandGap.toFixed(1)}% at 4+ codes`});
   }
 
   if(m.lapsedChronic.length){
@@ -1713,11 +2307,11 @@ function buildObservations(m){
 
   if(m.sudTotal){
     const better = m.sudVisits > m.nonSudVisits;
-    o.push({tone: m.sudLapsed6 > m.sudTotal*0.2 ? 'flag' : 'steady', chart:'chart-sud-engagement',
+    o.push({tone: m.sudLapsed6 > m.sudTotal*0.2 ? 'flag' : 'steady', chart:'chart-diagnosis-gap',
       title: better
         ? `Substance use patients come in more often, but a tail of them has gone quiet`
         : `Substance use patients are coming in less often than the rest of the adult panel`,
-      body:`They average ${m.sudVisits.toFixed(1)} visits against ${m.nonSudVisits.toFixed(1)} for other adults, which fits a medication-assisted treatment cadence. The concern is the ${m.sudLapsed6} patients with no visit in six months and ${m.sudLapsed12} with none in a year. For patients on MAT a six month gap is a relapse-risk signal, and it deserves its own trigger rather than sitting inside the general lapsed list.`,
+      body:`They average ${m.sudVisits.toFixed(1)} visits against ${m.nonSudVisits.toFixed(1)} for other adults, which fits a medication-assisted treatment cadence. The concern is the ${m.sudLapsed6} patients with no visit in six months and ${m.sudLapsed12} with none in a year. For patients on MAT a six month gap is a relapse-risk signal, and it deserves its own trigger rather than sitting inside the general lapsed list. Set the diagnosis filter to substance use to see the whole contact pattern.`,
       metric:`${m.sudLapsed6} quiet for 6+ months`});
   }
 
@@ -1749,7 +2343,7 @@ function buildObservations(m){
     const lowRisk = m.topUtil.filter(r=>r.risk<=2).length;
     o.push({tone:'watch', chart:'table-toputil',
       title:`A handful of patients sit far outside the normal visit range`,
-      body:`The highest is patient ${outlier.id} at ${outlier.visits} visits with a risk score of ${outlier.risk}. ${lowRisk} of the top fifteen have a risk score of 2 or lower. High visit volume paired with a low clinical risk score usually points at something the diagnosis codes are not capturing: housing, transportation, food insecurity, or care that is fragmented enough that the patient keeps coming back for the same unresolved thing. These are care-coordination candidates, not sicker patients.`,
+      body:`The highest is patient ${outlier.id} at ${outlier.visits} visits with a risk score of ${outlier.risk}. ${lowRisk} of the top thirty have a risk score of 2 or lower. High visit volume paired with a low clinical risk score usually points at something the diagnosis codes are not capturing: housing, transportation, food insecurity, or care that is fragmented enough that the patient keeps coming back for the same unresolved thing. These are care-coordination candidates, not sicker patients.`,
       metric:`${outlier.visits} visits, top patient`});
   }
 
@@ -1769,29 +2363,40 @@ function buildObservations(m){
    silently to the local engine if unavailable (offline, hosted
    outside Claude, network blocked).
 ------------------------------------------------------------------ */
-async function aiObservations(m, localObs){
-  const CHARTS = {
-    'chart-age':'Patients by age band',
-    'chart-risk':'Medical complexity, adults 18+',
-    'chart-visits':'Office visit frequency',
-    'chart-utilizers':'Average risk score by visit frequency',
-    'chart-conditions':'Diagnosis prevalence across the panel',
-    'chart-agehist':'Age in ten-year bands',
-    'chart-depression-age':'Depression diagnosis by age band',
-    'chart-comorbid':'Comorbidity clusters worth flagging',
-    'chart-caregap':'Time since last visit',
-    'chart-onceonly':'Patients seen only once',
-    'chart-sud-engagement':'SUD patients: contact pattern',
-    'table-toputil':'Most visits recorded'
-  };
+const CHARTS = {
+  'chart-age':'Patients by age band',
+  'chart-agehist':'Age in ten-year bands',
+  'chart-riskband':'Risk score by age band',
+  'chart-chronicband':'Chronic condition vs. healthy by age band',
+  'chart-avgchronic':'Avg. # of chronic conditions by age band',
+  'chart-conditions':'Diagnosis prevalence',
+  'chart-overlaps':'Most common overlapping diagnosis codes',
+  'chart-depression-age':'Depression diagnosis by age band',
+  'chart-comorbid':'Comorbidity clusters worth flagging',
+  'chart-visits':'Office visit frequency',
+  'chart-utilizers':'Visit frequency by average risk score',
+  'chart-caregap':'Time since last visit',
+  'chart-onceonly':'Patients seen only once',
+  'chart-once-risk':'Patients seen once by risk score',
+  'chart-diagnosis-gap':'Diagnosis code by months since last visit',
+  'table-toputil':'Most visits recorded'
+};
+
+async function aiObservations(m){
   const agg = {
     panelSize:m.n, adults:m.adults,
     ageBands:{under18:m.ages.under18, a19to64:m.ages.a1864, over65:m.ages.a65},
     adultsWith2plusRisk:m.risk2, adultsWith3plusRisk:m.risk3,
+    riskScoreByAgeBand:Object.fromEntries(BAND_LABELS.map((b,i)=>[b,
+      Object.fromEntries(m.riskLevels.map((lv,j)=>[lv===4?'4+':String(lv), m.riskByBand[j][i]]))])),
+    chronicVsHealthyByAgeBand:Object.fromEntries(BAND_LABELS.map((b,i)=>
+      [b,{chronic:m.chronicByBand[i], healthy:m.healthyByBand[i]}])),
+    avgChronicConditionsByAgeBand:Object.fromEntries(BAND_LABELS.map((b,i)=>[b,+m.avgChronicByBand[i].toFixed(2)])),
     visits:{once:m.v1, twice:m.v2, threePlus:m.v3},
     sixPlusVisitPatients:m.highUtil, sixPlusAvgRisk:+m.highUtilAvgRisk.toFixed(2),
     avgRiskByVisitBucket:Object.fromEntries(m.buckets.map((b,i)=>[b,+m.riskByBucket[i].toFixed(2)])),
     diagnosisCounts:Object.fromEntries(m.condOrder.map((c,i)=>[c,m.condCounts[i]])),
+    topDiagnosisOverlaps:Object.fromEntries(m.overlapPairs.slice(0,8).map(p=>[p.label,p.n])),
     depressionPctByBand:{under18:+m.depByBand[0].toFixed(1), a19to64:+m.depByBand[1].toFixed(1), over65:+m.depByBand[2].toFixed(1)},
     pediatricDepressionCount:m.teens,
     comorbidClusters:Object.fromEntries(m.clusters.map(c=>[c.label,c.n])),
@@ -1838,12 +2443,14 @@ Respond with JSON only. No preamble, no markdown fences. Shape:
 }
 
 const CHART_LABEL = {
-  'chart-age':'age band chart','chart-risk':'risk stratification chart','chart-visits':'visit frequency chart',
-  'chart-utilizers':'risk by visit frequency chart','chart-conditions':'diagnosis prevalence chart',
-  'chart-agehist':'age detail chart','chart-depression-age':'depression by age chart',
-  'chart-comorbid':'comorbidity chart','chart-caregap':'time since last visit chart',
-  'chart-onceonly':'single visit chart',
-  'chart-sud-engagement':'substance use contact chart','table-toputil':'highest utilizers table'
+  'chart-age':'age band chart','chart-agehist':'age detail chart',
+  'chart-riskband':'risk by age band chart','chart-chronicband':'chronic vs healthy chart',
+  'chart-avgchronic':'average conditions chart','chart-conditions':'diagnosis prevalence chart',
+  'chart-overlaps':'overlapping diagnosis chart','chart-depression-age':'depression by age chart',
+  'chart-comorbid':'comorbidity chart','chart-visits':'visit frequency chart',
+  'chart-utilizers':'risk by visit frequency chart','chart-caregap':'time since last visit chart',
+  'chart-onceonly':'single visit chart','chart-once-risk':'single visit by risk chart',
+  'chart-diagnosis-gap':'diagnosis contact chart','table-toputil':'highest utilizers table'
 };
 
 function paintObservations(list, note){
@@ -1859,26 +2466,35 @@ function paintObservations(list, note){
     </article>`).join('');
   document.getElementById('obsStatus').textContent = note;
   host.querySelectorAll('[data-jump]').forEach(a=>{
-    a.addEventListener('click',e=>{
-      e.preventDefault();
-      const t=document.getElementById(a.dataset.jump);
-      if(!t) return;
-      t.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth', block:'center'});
-      t.classList.add('lit'); setTimeout(()=>t.classList.remove('lit'),2200);
-    });
+    a.addEventListener('click',e=>{ e.preventDefault(); flashTo(a.dataset.jump); });
   });
 }
 const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* Jump to a chart or definition, opening whatever collapsed section holds it. */
+function flashTo(id){
+  const t=document.getElementById(id);
+  if(!t) return;
+  let d=t.closest('details');
+  const wasClosed=[];
+  while(d){ if(!d.open){ d.open=true; wasClosed.push(d); } d=d.parentElement.closest('details'); }
+  const go=()=>{
+    t.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth', block:'center'});
+    t.classList.add('lit'); setTimeout(()=>t.classList.remove('lit'),2200);
+  };
+  wasClosed.length ? requestAnimationFrame(()=>requestAnimationFrame(go)) : go();
+}
 
 async function runObservations(m){
   const local = buildObservations(m);
   document.getElementById('obsStatus').innerHTML = '<span class="spinner"></span>Reading the panel';
   paintObservations(local, '');
+  const stamp = `Written from this dataset · ${new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}`;
   try{
-    const ai = await aiObservations(m, local);
-    paintObservations(ai, `Written from this dataset · ${new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}`);
+    const ai = await aiObservations(m);
+    paintObservations(ai, stamp);
   }catch(e){
-    paintObservations(local, `Written from this dataset · ${new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}`);
+    paintObservations(local, stamp);
   }
 }
 
@@ -1909,6 +2525,16 @@ document.getElementById('fileInput').addEventListener('change', e=>{
   document.body.classList.toggle('drop-active', ev==='dragover');
   if(ev==='drop' && e.dataTransfer.files[0]) readFile(e.dataTransfer.files[0]);
 }));
+
+/* footnote links from each chart down to its definition */
+document.querySelectorAll('[data-def]').forEach(a=>{
+  a.addEventListener('click',e=>{ e.preventDefault(); flashTo(a.dataset.def); });
+});
+
+/* expand / collapse every section at once */
+const allBands = () => document.querySelectorAll('details.band');
+document.getElementById('expandAll').onclick   = ()=>allBands().forEach(d=>d.open=true);
+document.getElementById('collapseAll').onclick = ()=>allBands().forEach(d=>d.open=false);
 
 function readFile(f){
   const name=f.name.toLowerCase();
