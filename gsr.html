@@ -135,6 +135,23 @@
   @keyframes spin{to{transform:rotate(360deg)}}
   @media (prefers-reduced-motion:reduce){.spinner{animation-duration:2s}}
 
+  /* ---------- dataset picker ---------- */
+  .dspick{display:flex;gap:8px;align-items:center;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+  .dspick select{
+    font:600 13px/1 var(--sans);letter-spacing:0;text-transform:none;color:var(--navy);background:var(--paper);
+    border:1px solid var(--navy);border-radius:6px;padding:10px 12px;cursor:pointer;min-width:200px;max-width:min(440px,100%);
+  }
+  .dspick select:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+
+  /* ---------- what changed ---------- */
+  details.band.tone-changes > summary{border-left-color:var(--mint-deep)}
+  .stat .d{font-size:12.5px;font-weight:700;margin-top:7px;color:var(--ink-2)}
+  .stat .d.worse{color:#c2512f}
+  .stat .d.better{color:#41643c}
+  .stat .d small{font-weight:500;color:var(--ink-3)}
+  .chg-note{margin:14px 0 0;font-size:13px;color:var(--ink-2)}
+  .chg-sub{margin:22px 0 0;font:800 12px/1.2 var(--sans);letter-spacing:.09em;text-transform:uppercase;color:var(--navy)}
+
   /* ---------- charts ---------- */
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
   .grid1{margin-top:16px}
@@ -213,6 +230,8 @@
     .strip{grid-template-columns:1fr 1fr}
     .wrap,.top-inner,.toolrow{padding-left:18px;padding-right:18px}
     h1{font-size:28px}
+    .dspick{width:100%}
+    .dspick select{flex:1;min-width:0}
     .band-body{padding-left:16px;padding-right:16px}
   }
   @media print{
@@ -232,6 +251,9 @@
       <p class="sub" id="subtitle">Loading&hellip;</p>
     </div>
     <div class="datatools">
+      <label class="dspick" for="datasetSelect">Dataset
+        <select id="datasetSelect" aria-label="Choose which dataset to view"></select>
+      </label>
       <button class="btn" id="loadBtn">Load new data</button>
       <button class="btn ghost" id="rerunBtn">Rerun observations</button>
       <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" hidden>
@@ -247,10 +269,20 @@
 
 <div class="wrap">
 
+  <details class="band tone-changes" id="changes" open>
+    <summary><span class="chev"></span><h2>What&rsquo;s Changed</h2><span class="obs-status" id="chgStatus"></span></summary>
+    <div class="band-body">
+      <p class="sub" id="chgSub">Compares the selected dataset with the one before it.</p>
+      <div class="strip" id="chgStrip"></div>
+      <div class="obs-list" id="chgList"></div>
+      <a class="deflink" href="#def-changes" data-def="def-changes">How this is calculated</a>
+    </div>
+  </details>
+
   <details class="band tone-insights" id="observations">
     <summary><span class="chev"></span><h2>Patient Insights</h2><span class="obs-status" id="obsStatus"></span></summary>
     <div class="band-body">
-        <p class="sub">AI analysis provided based on dataset provided. Insights will only be generated when new data is loaded. Each observation links to the data set or chart with the data.</p>
+        <p class="sub">AI analysis provided based on the dataset selected above. Insights are written once per dataset, and again when you choose Rerun observations. Each observation links to the data set or chart with the data.</p>
       <div class="obs-list" id="obsList">
         <div class="obs-empty">Reading the panel&hellip;</div>
       </div>
@@ -474,6 +506,31 @@
       </div>
 
       <div class="defgroup">
+        <h3>What&rsquo;s Changed</h3>
+        <div class="def" id="def-changes">
+          <div class="dt">How the comparison is built</div>
+          <div class="dd">Datasets are ordered by their as-of date. The selected dataset is compared with the one just before it. The earliest dataset has nothing to compare with, so it shows as a baseline. Every number below is recalculated for each dataset from its own rows, using the same definitions as the rest of this page.</div>
+          <div class="fx">Tiles
+  Patients in panel         = COUNT(Patient #), change = this dataset - previous
+  New patients              = COUNT(Patient # in this dataset and not in previous)
+  Adults with 2+ risk codes = % of adults with Risk &gt;= 2, change in percentage points
+  Not seen in over 12 mo    = COUNT(months since last visit &gt; 12), change in patients</div>
+          <div class="dd">Patients are matched across datasets on <code>Patient #</code>. If no patient numbers match, the carry-over items are skipped.</div>
+          <div class="fx">Notable change cards (shown when a threshold is crossed)
+  Count measures    = change &gt;= 15% AND at least 3 patients
+  Diagnosis share   = change &gt;= 1.0 percentage point of the panel
+  Age band share    = change &gt;= 2.0 percentage points of the panel
+  Adults 2+ risk    = change &gt;= 1.5 percentage points
+  Panel size        = change &gt;= 2%
+  Joined or left    = (new + no longer present) &gt;= 5% of the previous panel
+  Newly coded       = patients present in both whose diagnosis column went from blank to a code, &gt;= 2% of carried-over patients
+  No new visit      = carried-over patients with a chronic disease code whose latest Encounter date did not move,
+                      &gt;= 25% of them (&gt;= 50% when the two datasets are under 6 months apart)</div>
+          <div class="dd">Cards are ordered needs action first, then worth watching, then improving, and within each by how far past the threshold the change is. At most eight are shown. A rise in a count that signals disengagement is marked as needing action. A rise in diagnosis share is marked as worth watching, because it can reflect better coding as well as more illness.</div>
+        </div>
+      </div>
+
+      <div class="defgroup">
         <h3>Provider Patient Summary</h3>
         <div class="def" id="def-strip">
           <div class="dt">The four summary tiles</div>
@@ -645,7 +702,7 @@
 
   <footer class="foot">
     <p>Data stays in this browser. Nothing is uploaded when you load a file. If the AI narrative is generated, only the aggregate counts shown on this page are sent, never individual patient rows.</p>
-    <p style="margin-top:8px">To refresh: export Grace's spreadsheet with the same column headers, then choose Load new data. Charts, tables, definitions and observations all recalculate.</p>
+    <p style="margin-top:8px">To refresh: export Grace's spreadsheet with the same column headers, then choose Load new data. The file is added to the Dataset menu, and charts, tables, definitions, what changed and observations all recalculate. A file loaded this way is visible only in your browser until it is added to the datasets folder in the repository.</p>
   </footer>
 </div>
 
@@ -2453,8 +2510,8 @@ const CHART_LABEL = {
   'chart-diagnosis-gap':'diagnosis contact chart','table-toputil':'highest utilizers table'
 };
 
-function paintObservations(list, note){
-  const host=document.getElementById('obsList');
+function paintObservations(list, note, hostId='obsList', statusId='obsStatus'){
+  const host=document.getElementById(hostId);
   host.innerHTML = list.map(o=>`
     <article class="obs" data-tone="${o.tone||'watch'}">
       <h3>${esc(o.title)}</h3>
@@ -2464,7 +2521,7 @@ function paintObservations(list, note){
         ${o.metric?`<span class="metric">${esc(o.metric)}</span>`:''}
       </div>
     </article>`).join('');
-  document.getElementById('obsStatus').textContent = note;
+  document.getElementById(statusId).textContent = note;
   host.querySelectorAll('[data-jump]').forEach(a=>{
     a.addEventListener('click',e=>{ e.preventDefault(); flashTo(a.dataset.jump); });
   });
@@ -2485,37 +2542,284 @@ function flashTo(id){
   wasClosed.length ? requestAnimationFrame(()=>requestAnimationFrame(go)) : go();
 }
 
-async function runObservations(m){
+async function runObservations(m, ds){
+  /* A viewer may switch datasets while this is still running. Only paint if m is still on screen. */
+  const live = () => window.__metrics === m;
   const local = buildObservations(m);
-  document.getElementById('obsStatus').innerHTML = '<span class="spinner"></span>Reading the panel';
-  paintObservations(local, '');
-  const stamp = `Written from this dataset · ${new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}`;
-  try{
-    const ai = await aiObservations(m);
-    paintObservations(ai, stamp);
-  }catch(e){
-    paintObservations(local, stamp);
+  if(live()){
+    document.getElementById('obsStatus').innerHTML = '<span class="spinner"></span>Reading the panel';
+    paintObservations(local, '');
   }
+  const stamp = `Written from ${ds ? ds.label : 'this dataset'} · ${new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}`;
+  let list;
+  try{ list = await aiObservations(m); }
+  catch(e){ list = local; }
+  if(ds) ds.obs = {list, note:stamp};
+  if(live()) paintObservations(list, stamp);
 }
 
 /* ============================================================
    6. LOAD / WIRING
    ============================================================ */
-function loadFromCSVText(text, label){
+/* ---- dataset registry -------------------------------------------
+   Every dataset keeps its own rows, as-of date and metrics, so picking
+   one in the menu redraws every chart from that dataset alone.
+   Sources: the embedded extract, datasets/manifest.json when the page
+   is hosted, and any file loaded in this browser with Load new data.
+------------------------------------------------------------------ */
+const DATASETS = [];
+let CURRENT = null;
+let picked = false;   /* true once the viewer has chosen or loaded a dataset */
+let dsSeq = 0;
+
+const fmtDate = d => d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+function makeDataset(text, label, origin){
   const recs = toRecords(parseCSV(text.trim()));
-  if(!recs.length){ alert('No patient rows found. Check that the file has Age, Risk, Visits and Encounter dates columns.'); return; }
+  if(!recs.length) return null;
   const latest = recs.flatMap(r=>r.dates).sort((a,b)=>b-a)[0] || new Date();
   const asOf = new Date(latest.getTime() + 14*86400000);
-  STATE = {rows:recs, asOf, source:label};
-  document.getElementById('fileNote').textContent = label;
-  const m = computeMetrics(recs, asOf);
-  window.__metrics = m;
-  render(m);
-  runObservations(m);
+  return {id:'ds'+(++dsSeq), label, origin, rows:recs, asOf, m:computeMetrics(recs, asOf), obs:null};
 }
 
+function addDataset(text, label, origin){
+  const ds = makeDataset(text, label, origin);
+  if(!ds) return null;
+  const i = DATASETS.findIndex(d=>d.label===label);
+  if(i>=0){ ds.id = DATASETS[i].id; DATASETS[i] = ds; } else DATASETS.push(ds);
+  return ds;
+}
+
+/* oldest to newest by as-of date */
+const sortedDatasets = () => DATASETS.map((d,i)=>[d,i]).sort((a,b)=>(a[0].asOf-b[0].asOf)||(a[1]-b[1])).map(x=>x[0]);
+const previousOf = ds => { const s=sortedDatasets(), i=s.indexOf(ds); return i>0 ? s[i-1] : null; };
+
+function fillSelect(){
+  const sel = document.getElementById('datasetSelect');
+  sel.innerHTML = sortedDatasets().reverse().map(d=>
+    `<option value="${d.id}">${esc(d.label)} (${d.m.n.toLocaleString()} patients)</option>`).join('');
+  if(CURRENT) sel.value = CURRENT.id;
+}
+
+function selectDataset(id){
+  const ds = DATASETS.find(d=>d.id===id);
+  if(!ds) return;
+  CURRENT = ds;
+  STATE = {rows:ds.rows, asOf:ds.asOf, source:ds.label};
+  window.__metrics = ds.m;
+  document.getElementById('datasetSelect').value = ds.id;
+  document.getElementById('fileNote').textContent =
+    `Showing ${ds.label} · ${DATASETS.length} dataset${DATASETS.length===1?'':'s'} available`;
+  render(ds.m);
+  renderChanges(ds);
+  if(ds.obs) paintObservations(ds.obs.list, ds.obs.note);
+  else runObservations(ds.m, ds);
+}
+
+/* Load new data: add the file to the menu and show it. */
+function loadFromCSVText(text, label){
+  const clean = String(label).replace(/\.(csv|xlsx|xls)$/i,'');
+  const ds = addDataset(text, clean, 'upload');
+  if(!ds){ alert('No patient rows found. Check that the file has Age, Risk, Visits and Encounter dates columns.'); return; }
+  picked = true;
+  fillSelect();
+  selectDataset(ds.id);
+}
+
+/* Hosted copies can list extra datasets in datasets/manifest.json:
+   [{"label":"Oct 2026","file":"panel-2026-10.csv"}]. Missing file is fine. */
+async function loadManifest(){
+  if(!/^https?:$/.test(location.protocol)) return;
+  try{
+    const res = await fetch('datasets/manifest.json',{cache:'no-store'});
+    if(!res.ok) return;
+    const j = await res.json();
+    const list = Array.isArray(j) ? j : (j.datasets||[]);
+    for(const it of list){
+      if(!it || !it.file || !/\.csv$/i.test(it.file)) continue;
+      try{
+        const r = await fetch('datasets/'+encodeURI(it.file),{cache:'no-store'});
+        if(r.ok) addDataset(await r.text(), it.label || it.file.replace(/\.csv$/i,''), 'repo');
+      }catch(e){}
+    }
+    fillSelect();
+    if(!picked){
+      const s = sortedDatasets();
+      if(s.length && s[s.length-1]!==CURRENT) selectDataset(s[s.length-1].id);
+    } else if(CURRENT){
+      renderChanges(CURRENT);   /* a newly found dataset may now be its predecessor */
+    }
+  }catch(e){}
+}
+
+/* ---- what changed ------------------------------------------------ */
+const COUNT_MEASURES = [
+  {noun:'Patients with a chronic condition not seen in over 12 months', get:m=>m.lapsedChronic.length, chart:'chart-caregap', worse:'up',
+   hint:'This is the call list for chronic disease outreach.'},
+  {noun:'High-risk patients (2 or more codes) seen twice or fewer', get:m=>m.outreach.length, chart:'chart-visits', worse:'up',
+   hint:'These patients carry complexity with almost no contact with the clinic.'},
+  {noun:'Patients seen only once', get:m=>m.onceTotal, chart:'chart-onceonly', worse:'up',
+   hint:'First-visit retention is the lever here.'},
+  {noun:'Substance use patients with no visit in 6 months', get:m=>m.sudLapsed6, chart:'chart-diagnosis-gap', worse:'up',
+   hint:'A quiet stretch in this group is where outreach matters most.'},
+  {noun:'Patients 18 and under with a depression code', get:m=>m.teens, chart:'chart-depression-age', worse:null,
+   hint:'This group needs its own referral pathway.'},
+  {noun:'Patients with 6 or more visits', get:m=>m.highUtil, chart:'chart-visits', worse:null,
+   hint:'Check whether the added visits track complexity.'},
+  ...['SUD + depression','SUD + chronic pain','SUD + depression + pain','Chronic illness + depression'].map(label=>({
+    noun:`${label} patients`, get:m=>(m.clusters.find(c=>c.label===label)||{n:0}).n, chart:'chart-comorbid', worse:'up',
+    hint:'Stacked codes raise clinical and crisis risk.'}))
+];
+
+function buildChanges(ds, pv){
+  const m=ds.m, p=pv.m, items=[];
+  const num = v => Math.round(v).toLocaleString();
+  const sgn = v => (v>0?'+':v<0?'-':'') + Math.abs(v).toLocaleString();
+  const pctOf = (a,b) => b ? a/b*100 : 0;
+  const add = (tone,score,chart,title,body,metric) => items.push({tone,score:Math.min(score,10),chart,title,body,metric});
+  let note = '';
+
+  /* panel size */
+  if(p.n){
+    const rel = (m.n-p.n)/p.n*100;
+    if(Math.abs(rel)>=2) add('watch', Math.abs(rel)/2, 'chart-age',
+      `The panel ${m.n>p.n?'grew':'shrank'} from ${num(p.n)} to ${num(m.n)} patients`,
+      `That is ${sgn(m.n-p.n)} patients (${rel>0?'+':''}${rel.toFixed(1)}%). Every count on this page moves with panel size, so read shares alongside counts.`,
+      `${rel>0?'+':''}${rel.toFixed(1)}% patients`);
+  }
+
+  /* carry-over analysis, matched on Patient # */
+  const prevMap = new Map(pv.rows.filter(r=>r.id).map(r=>[r.id,r]));
+  const curMap  = new Map(ds.rows.filter(r=>r.id).map(r=>[r.id,r]));
+  const retained = [...curMap.keys()].filter(id=>prevMap.has(id));
+  const joined = curMap.size - retained.length;
+  const left = prevMap.size - retained.length;
+  const gapMonths = (ds.asOf - pv.asOf)/(86400000*30.44);
+
+  if(!retained.length){
+    note = curMap.size && prevMap.size ? 'No patient numbers match between these two datasets, so new, departed and carry-over comparisons are skipped.' : '';
+  } else {
+    if(pctOf(joined+left, prevMap.size)>=5) add('watch', pctOf(joined+left, prevMap.size)/5, 'chart-age',
+      `${num(joined)} patients joined the panel and ${num(left)} are no longer in the file`,
+      `Patients are matched on Patient #. Anyone missing from the newer file may have transferred, been discharged or dropped off the extract, so confirm before reading it as attrition.`,
+      `${num(joined)} in, ${num(left)} out`);
+
+    let gained=0; const gainedBy={};
+    retained.forEach(id=>{
+      const a=prevMap.get(id), b=curMap.get(id); let any=false;
+      DX_ORDER.forEach(k=>{ if(!has(a,k) && has(b,k)){ gainedBy[k]=(gainedBy[k]||0)+1; any=true; } });
+      if(any) gained++;
+    });
+    const gShare = pctOf(gained, retained.length);
+    if(gShare>=2){
+      const top = Object.entries(gainedBy).sort((x,y)=>y[1]-x[1]).slice(0,3).map(([k,v])=>`${DX_LABEL(k)} (${v})`).join(', ');
+      add('watch', gShare/2, 'chart-conditions',
+        `${num(gained)} patients picked up a new diagnosis code`,
+        `Of ${num(retained.length)} patients in both datasets, ${num(gained)} have a diagnosis column that was blank before and now holds a code. Most often: ${top}. These are the patients whose care plan may need updating.`,
+        `${gShare.toFixed(1)}% of carry-over`);
+    }
+
+    const lastOf = r => r.dates.length ? Math.max(...r.dates.map(d=>d.getTime())) : null;
+    const chronicRet = retained.filter(id=>chronicCount(curMap.get(id))>0);
+    const stale = chronicRet.filter(id=>{
+      const a=lastOf(prevMap.get(id)), b=lastOf(curMap.get(id));
+      return b===null || (a!==null && b<=a);
+    });
+    const sShare = pctOf(stale.length, chronicRet.length);
+    const sThr = gapMonths>=6 ? 25 : 50;
+    if(chronicRet.length && sShare>=sThr) add(gapMonths>=6?'flag':'watch', sShare/sThr, 'chart-caregap',
+      `${num(stale.length)} of ${num(chronicRet.length)} chronic patients have no new visit since ${pv.label}`,
+      `Their latest encounter date did not move between the two datasets, which are about ${gapMonths.toFixed(1)} months apart. Cross-check them against the time since last visit chart.`,
+      `${sShare.toFixed(0)}% of chronic carry-over`);
+  }
+
+  /* diagnosis share, top two movers */
+  DX_ORDER.map((k,i)=>({k, a:p.condCounts[i], b:m.condCounts[i], sa:pctOf(p.condCounts[i],p.n), sb:pctOf(m.condCounts[i],m.n)}))
+    .map(o=>({...o, d:o.sb-o.sa}))
+    .filter(o=>Math.abs(o.d)>=1)
+    .sort((x,y)=>Math.abs(y.d)-Math.abs(x.d)).slice(0,2)
+    .forEach(o=>add('watch', Math.abs(o.d), 'chart-conditions',
+      `${DX_LABEL(o.k)} ${o.d>0?'rose':'fell'} from ${o.sa.toFixed(1)}% to ${o.sb.toFixed(1)}% of the panel`,
+      `${num(o.a)} patients before, ${num(o.b)} now. ${o.d>0?'A rise can mean more illness or better coding, so check the new codes before reading it as a trend.':'A fall can mean patients left the panel or codes were dropped, so check against the patients who left.'}`,
+      `${o.d>0?'+':''}${o.d.toFixed(1)} pts`));
+
+  /* age band share, biggest mover */
+  const ab = BAND_KEYS.map((k,i)=>({label:BAND_LABELS[i], sa:pctOf(p.bandTotals[i],p.n), sb:pctOf(m.bandTotals[i],m.n)}))
+    .map(o=>({...o, d:o.sb-o.sa})).sort((x,y)=>Math.abs(y.d)-Math.abs(x.d))[0];
+  if(ab && Math.abs(ab.d)>=2) add('watch', Math.abs(ab.d)/2, 'chart-age',
+    `The ${ab.label} band ${ab.d>0?'grew':'shrank'} from ${ab.sa.toFixed(1)}% to ${ab.sb.toFixed(1)}% of the panel`,
+    `The age mix shifted, which changes the expected load on every chart that splits by age.`,
+    `${ab.d>0?'+':''}${ab.d.toFixed(1)} pts`);
+
+  /* adults with 2+ risk codes */
+  const dr = m.pctRisk2 - p.pctRisk2;
+  if(Math.abs(dr)>=1.5) add(dr>0?'flag':'steady', Math.abs(dr)/1.5, 'chart-riskband',
+    `Adults with two or more risk codes ${dr>0?'rose':'fell'} from ${p.pctRisk2.toFixed(1)}% to ${m.pctRisk2.toFixed(1)}%`,
+    `${num(p.risk2)} adults before, ${num(m.risk2)} now. ${dr>0?'The panel is carrying more complexity per patient.':'Complexity per patient eased.'}`,
+    `${dr>0?'+':''}${dr.toFixed(1)} pts`);
+
+  /* count measures */
+  COUNT_MEASURES.forEach(c=>{
+    const a=c.get(p), b=c.get(m), d=b-a;
+    if(Math.abs(d)<3 || (a>0 && Math.abs(d)/a<0.15)) return;
+    const worse = c.worse==='up' && d>0, better = c.worse==='up' && d<0;
+    add(worse?'flag':better?'steady':'watch', a>0 ? Math.abs(d)/a/0.15 : 3, c.chart,
+      `${c.noun} ${d>0?'rose':'fell'} from ${num(a)} to ${num(b)}`,
+      `${sgn(d)} patients${a>0?` (${d>0?'+':'-'}${(Math.abs(d)/a*100).toFixed(0)}%)`:''}. ${c.hint}`,
+      `${sgn(d)} patients`);
+  });
+
+  const pri = {flag:0, watch:1, steady:2};
+  items.sort((x,y)=>(pri[x.tone]-pri[y.tone]) || (y.score-x.score));
+  return {items: items.slice(0,8), note, joined, left, hasMatch: retained.length>0};
+}
+
+function renderChanges(ds){
+  const strip=document.getElementById('chgStrip'), list=document.getElementById('chgList');
+  const status=document.getElementById('chgStatus'), sub=document.getElementById('chgSub');
+  const pv = previousOf(ds);
+  if(!pv){
+    status.textContent = 'Baseline';
+    sub.textContent = `${ds.label} is the earliest dataset loaded, so there is nothing before it to compare with.`;
+    strip.innerHTML = '';
+    list.innerHTML = '<div class="obs-empty">Use Load new data to add a later extract. This section will then summarize what changed, and you can pick any dataset in the menu at the top to see its changes against the one before it.</div>';
+    return;
+  }
+  const c = buildChanges(ds, pv), m=ds.m, p=pv.m;
+  status.textContent = `vs. ${pv.label}`;
+  sub.textContent = `${ds.label} (as of ${fmtDate(ds.asOf)}) compared with ${pv.label} (as of ${fmtDate(pv.asOf)}). Notable changes are listed first, with the ones that need action on top.`;
+
+  const delta = (d, text, worse, from) => {
+    const zero = Math.abs(d)<1e-9 || text===null;
+    const cls = zero || !worse ? '' : (worse==='up' ? (d>0?'worse':'better') : (d<0?'worse':'better'));
+    return `<div class="d ${cls}">${zero?'No change':text} <small>${from}</small></div>`;
+  };
+  const tile = (n,l,d) => `<div class="stat"><div class="n">${n}</div><div class="l">${l}</div>${d}</div>`;
+  const dr = m.pctRisk2 - p.pctRisk2;
+  const rounded = Math.round(dr*10)/10;
+  strip.innerHTML = [
+    tile(m.n.toLocaleString(), 'Patients in panel',
+      delta(m.n-p.n, `${m.n>p.n?'+':'-'}${Math.abs(m.n-p.n).toLocaleString()}`, null, `from ${p.n.toLocaleString()}`)),
+    tile(c.hasMatch ? c.joined.toLocaleString() : 'n/a', `New since ${esc(pv.label)}`,
+      c.hasMatch ? `<div class="d">${c.left.toLocaleString()} <small>no longer in the file</small></div>`
+                 : `<div class="d"><small>no matching patient numbers</small></div>`),
+    tile(`${Math.round(m.pctRisk2)}%`, 'Adults with 2+ risk codes',
+      delta(rounded, `${rounded>0?'+':'-'}${Math.abs(rounded).toFixed(1)} pts`, 'up', `from ${Math.round(p.pctRisk2)}%`)),
+    tile(m.lapsed12All.toLocaleString(), 'Not seen in over 12 months',
+      delta(m.lapsed12All-p.lapsed12All, `${m.lapsed12All>p.lapsed12All?'+':'-'}${Math.abs(m.lapsed12All-p.lapsed12All).toLocaleString()}`, 'up', `from ${p.lapsed12All.toLocaleString()}`))
+  ].join('');
+
+  if(c.items.length){
+    paintObservations(c.items, `vs. ${pv.label}`, 'chgList', 'chgStatus');
+  } else {
+    list.innerHTML = '<div class="obs-empty">No notable changes. Nothing moved past the thresholds listed under What&rsquo;s Changed in the definitions.</div>';
+  }
+  if(c.note) list.insertAdjacentHTML('beforeend', `<p class="chg-note">${esc(c.note)}</p>`);
+}
+
+document.getElementById('datasetSelect').addEventListener('change', e=>{ picked = true; selectDataset(e.target.value); });
 document.getElementById('loadBtn').onclick = ()=>document.getElementById('fileInput').click();
-document.getElementById('rerunBtn').onclick = ()=>{ if(window.__metrics) runObservations(window.__metrics); };
+document.getElementById('rerunBtn').onclick = ()=>{ if(CURRENT) runObservations(CURRENT.m, CURRENT); };
 
 document.getElementById('fileInput').addEventListener('change', e=>{
   const f=e.target.files[0]; if(!f) return; readFile(f);
@@ -2562,7 +2866,12 @@ async function loadXLSX(f){
 }
 
 buildFilterBars();
-loadFromCSVText(EMBEDDED_CSV, 'Panel extract, Sep 2026');
+{
+  const first = addDataset(EMBEDDED_CSV, 'Panel extract, Sep 2026', 'embedded');
+  fillSelect();
+  selectDataset(first.id);
+  loadManifest();
+}
 </script>
 </body>
 </html>
