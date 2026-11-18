@@ -702,7 +702,7 @@
 
   <footer class="foot">
     <p>Data stays in this browser. Nothing is uploaded when you load a file. If the AI narrative is generated, only the aggregate counts shown on this page are sent, never individual patient rows.</p>
-    <p style="margin-top:8px">To refresh: export Grace's spreadsheet with the same column headers, then choose Load new data. The file is added to the Dataset menu, and charts, tables, definitions, what changed and observations all recalculate. A file loaded this way is visible only in your browser until it is added to the datasets folder in the repository.</p>
+    <p style="margin-top:8px">To refresh: export Grace's spreadsheet with the same column headers, then choose Load new data. The file is added to the Dataset menu, and charts, tables, definitions, what changed and observations all recalculate. Shared data sets are read from the GRS Panel Data - All Datasets Google Sheet, so everyone who opens this page sees them. A file loaded with Load new data is visible only in your browser until it is added as a new tab in that sheet.</p>
   </footer>
 </div>
 
@@ -2652,6 +2652,62 @@ async function loadManifest(){
   }catch(e){}
 }
 
+/* Shared data source: the "GRS Panel Data - All Datasets" Google Sheet in the
+   SSTAR Panel Data Drive folder. Every tab named YYYY-MM (for example 2026-12)
+   is found automatically and becomes one entry in the Dataset menu, so adding
+   a tab to the sheet is all it takes. The optional "datasets" tab can give a
+   tab a custom label or list a tab that is not named YYYY-MM.
+   The sheet must be viewable by anyone with the link for this to work.
+   If it cannot be reached, the page falls back to the embedded extract. */
+const SHEET_ID = '1r_2NouXBLbsNNL3HB-DLw7YkCNvRxqnbEBOQ2KgY5WU';
+const sheetCsvUrl = tab => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`;
+
+async function fetchTab(tab){
+  try{
+    const r = await fetch(sheetCsvUrl(tab),{cache:'no-store'});
+    return r.ok ? await r.text() : null;
+  }catch(e){ return null; }
+}
+
+async function loadSheet(){
+  if(!/^https?:$/.test(location.protocol)) return false;
+  try{
+    /* candidate tabs: every month from Jan 2024 through next month, plus the manifest */
+    const cand = new Map();   /* tab -> label */
+    const now = new Date();
+    for(let y=2024, m=1; y<now.getFullYear() || (y===now.getFullYear() && m<=now.getMonth()+2); ){
+      const tab = `${y}-${String(m).padStart(2,'0')}`;
+      cand.set(tab, `${String(m).padStart(2,'0')}-${y} Panel Data`);
+      if(++m>12){ m=1; y++; }
+    }
+    const man = await fetchTab('datasets');
+    if(man){
+      const idx = parseCSV(man);
+      const head = (idx[0]||[]).map(h=>String(h).trim().toLowerCase());
+      const iLabel = head.indexOf('label'), iTab = head.indexOf('tab');
+      if(iTab>=0) for(const r of idx.slice(1)){
+        const tab = (r[iTab]||'').trim();
+        if(tab) cand.set(tab, (iLabel>=0 && (r[iLabel]||'').trim()) || cand.get(tab) || tab);
+      }
+    }
+    /* a tab that does not exist comes back as the first sheet, which has no Age or
+       Risk columns, so makeDataset skips it */
+    const texts = await Promise.all([...cand.keys()].map(fetchTab));
+    let added = 0;
+    [...cand.entries()].forEach(([tab,label],i)=>{
+      if(texts[i] && addDataset(texts[i], label, 'sheet')) added++;
+    });
+    if(!added) return false;
+    /* the embedded extract is the same Sep 2026 data as the first tab, so drop it */
+    for(let i=DATASETS.length-1;i>=0;i--) if(DATASETS[i].origin==='embedded') DATASETS.splice(i,1);
+    fillSelect();
+    const s = sortedDatasets();
+    if(!picked || !DATASETS.includes(CURRENT)) selectDataset(s[s.length-1].id);
+    else renderChanges(CURRENT);
+    return true;
+  }catch(e){ return false; }
+}
+
 /* ---- what changed ------------------------------------------------ */
 const COUNT_MEASURES = [
   {noun:'Patients with a chronic condition not seen in over 12 months', get:m=>m.lapsedChronic.length, chart:'chart-caregap', worse:'up',
@@ -2870,7 +2926,7 @@ buildFilterBars();
   const first = addDataset(EMBEDDED_CSV, 'Panel extract, Sep 2026', 'embedded');
   fillSelect();
   selectDataset(first.id);
-  loadManifest();
+  loadSheet().then(ok=>{ if(!ok) loadManifest(); });
 }
 </script>
 </body>
