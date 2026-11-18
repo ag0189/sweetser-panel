@@ -224,7 +224,6 @@
   .span2{grid-column:1/-1}
 
   footer.foot{border-top:2px solid var(--navy);padding-top:18px;margin-top:8px;color:var(--ink-3);font-size:12.5px;max-width:80ch}
-  .drop-active{outline:3px dashed var(--sky);outline-offset:-8px}
   @media (max-width:820px){
     .grid2{grid-template-columns:1fr}
     .strip{grid-template-columns:1fr 1fr}
@@ -254,9 +253,7 @@
       <label class="dspick" for="datasetSelect">Dataset
         <select id="datasetSelect" aria-label="Choose which dataset to view"></select>
       </label>
-      <button class="btn" id="loadBtn">Load new data</button>
       <button class="btn ghost" id="rerunBtn">Rerun observations</button>
-      <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" hidden>
       <span class="filenote" id="fileNote">Using the panel extract from Sep 2026</span>
     </div>
   </div>
@@ -702,7 +699,7 @@
 
   <footer class="foot">
     <p>Data stays in this browser. Nothing is uploaded when you load a file. If the AI narrative is generated, only the aggregate counts shown on this page are sent, never individual patient rows.</p>
-    <p style="margin-top:8px">To refresh: export Grace's spreadsheet with the same column headers, then choose Load new data. The file is added to the Dataset menu, and charts, tables, definitions, what changed and observations all recalculate. Shared data sets are read from the GRS Panel Data - All Datasets Google Sheet, so everyone who opens this page sees them. A file loaded with Load new data is visible only in your browser until it is added as a new tab in that sheet.</p>
+    <p style="margin-top:8px">New data sets are added to the GRS Panel Data - All Datasets Google Sheet as a tab named YYYY-MM (for example 2026-12). Each tab appears in the Dataset menu automatically, and charts, tables, definitions, what changed and observations all recalculate for the one you pick.</p>
   </footer>
 </div>
 
@@ -2565,7 +2562,7 @@ async function runObservations(m, ds){
    Every dataset keeps its own rows, as-of date and metrics, so picking
    one in the menu redraws every chart from that dataset alone.
    Sources: the embedded extract, datasets/manifest.json when the page
-   is hosted, and any file loaded in this browser with Load new data.
+   is hosted, and the shared Google Sheet.
 ------------------------------------------------------------------ */
 const DATASETS = [];
 let CURRENT = null;
@@ -2614,16 +2611,6 @@ function selectDataset(id){
   renderChanges(ds);
   if(ds.obs) paintObservations(ds.obs.list, ds.obs.note);
   else runObservations(ds.m, ds);
-}
-
-/* Load new data: add the file to the menu and show it. */
-function loadFromCSVText(text, label){
-  const clean = String(label).replace(/\.(csv|xlsx|xls)$/i,'');
-  const ds = addDataset(text, clean, 'upload');
-  if(!ds){ alert('No patient rows found. Check that the file has Age, Risk, Visits and Encounter dates columns.'); return; }
-  picked = true;
-  fillSelect();
-  selectDataset(ds.id);
 }
 
 /* Hosted copies can list extra datasets in datasets/manifest.json:
@@ -2838,7 +2825,7 @@ function renderChanges(ds){
     status.textContent = 'Baseline';
     sub.textContent = `${ds.label} is the earliest dataset loaded, so there is nothing before it to compare with.`;
     strip.innerHTML = '';
-    list.innerHTML = '<div class="obs-empty">Use Load new data to add a later extract. This section will then summarize what changed, and you can pick any dataset in the menu at the top to see its changes against the one before it.</div>';
+    list.innerHTML = '<div class="obs-empty">Once a later data set is added to the Google Sheet, this section will summarize what changed, and you can pick any dataset in the menu at the top to see its changes against the one before it.</div>';
     return;
   }
   const c = buildChanges(ds, pv), m=ds.m, p=pv.m;
@@ -2874,17 +2861,10 @@ function renderChanges(ds){
 }
 
 document.getElementById('datasetSelect').addEventListener('change', e=>{ picked = true; selectDataset(e.target.value); });
-document.getElementById('loadBtn').onclick = ()=>document.getElementById('fileInput').click();
 document.getElementById('rerunBtn').onclick = ()=>{ if(CURRENT) runObservations(CURRENT.m, CURRENT); };
 
-document.getElementById('fileInput').addEventListener('change', e=>{
-  const f=e.target.files[0]; if(!f) return; readFile(f);
-});
-['dragover','dragleave','drop'].forEach(ev=>document.addEventListener(ev,e=>{
-  e.preventDefault();
-  document.body.classList.toggle('drop-active', ev==='dragover');
-  if(ev==='drop' && e.dataTransfer.files[0]) readFile(e.dataTransfer.files[0]);
-}));
+/* a file dropped on the page should not make the browser navigate away */
+['dragover','drop'].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault()));
 
 /* footnote links from each chart down to its definition */
 document.querySelectorAll('[data-def]').forEach(a=>{
@@ -2895,31 +2875,6 @@ document.querySelectorAll('[data-def]').forEach(a=>{
 const allBands = () => document.querySelectorAll('details.band');
 document.getElementById('expandAll').onclick   = ()=>allBands().forEach(d=>d.open=true);
 document.getElementById('collapseAll').onclick = ()=>allBands().forEach(d=>d.open=false);
-
-function readFile(f){
-  const name=f.name.toLowerCase();
-  if(name.endsWith('.csv')){
-    const fr=new FileReader();
-    fr.onload=()=>loadFromCSVText(fr.result, f.name);
-    fr.readAsText(f);
-  } else {
-    loadXLSX(f).catch(()=>alert('Could not read that spreadsheet. Save it as CSV and try again.'));
-  }
-}
-
-async function loadXLSX(f){
-  if(!window.XLSX){
-    await new Promise((res,rej)=>{
-      const s=document.createElement('script');
-      s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
-      s.onload=res; s.onerror=rej; document.head.appendChild(s);
-    });
-  }
-  const buf = await f.arrayBuffer();
-  const wb = XLSX.read(buf,{type:'array'});
-  const csv = XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]]);
-  loadFromCSVText(csv, f.name);
-}
 
 buildFilterBars();
 {
